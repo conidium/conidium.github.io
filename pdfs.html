@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style></style>
+</head>
+<body>
+    <!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Extractor de Información de PDF</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .input-group {
+            display: flex;
+            margin-bottom: 10px;
+        }
+        .input-group input[type="radio"], .input-group input[type="checkbox"] {
+            margin-right: 10px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        input, button, select {
+            padding: 12px;
+            width: 100%;
+            box-sizing: border-box;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 15px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        button:disabled {
+            background-color: #95a5a6;
+            cursor: not-allowed;
+        }
+        #result {
+            margin-top: 25px;
+            white-space: pre-wrap;
+            background-color: white;
+            padding: 20px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            min-height: 200px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        .progress-container {
+            width: 100%;
+            background-color: #eee;
+            border-radius: 4px;
+            margin-top: 15px;
+        }
+        .progress-bar {
+            height: 24px;
+            background-color: #3498db;
+            width: 0%;
+            border-radius: 4px;
+            text-align: center;
+            line-height: 24px;
+            color: white;
+            transition: width 0.3s;
+        }
+        .highlight {
+            background-color: #ffffa0;
+            padding: 2px;
+            border-radius: 2px;
+        }
+        .search-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        .tabs {
+            display: flex;
+            margin-bottom: 15px;
+        }
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            background-color: #e0e0e0;
+            border-radius: 5px 5px 0 0;
+            margin-right: 5px;
+        }
+        .tab.active {
+            background-color: #3498db;
+            color: white;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .image-preview {
+            max-width: 100%;
+            margin-top: 20px;
+            text-align: center;
+        }
+        .page-selector {
+            display: flex;
+            justify-content: center;
+            margin-top: 15px;
+        }
+        .page-selector button {
+            width: auto;
+            padding: 8px 15px;
+            margin: 0 5px;
+        }
+        #pageIndicator {
+            padding: 8px 15px;
+            margin: 0 10px;
+            background: #f0f0f0;
+            border-radius: 4px;
+            display: inline-block;
+        }
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            margin-left: 8px;
+            cursor: help;
+        }
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: #555;
+            color: #fff;
+            text-align: center;
+            padding: 5px;
+            border-radius: 6px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 12px;
+            font-weight: normal;
+        }
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+        .settings-icon {
+            margin-left: 5px;
+            cursor: pointer;
+            color: #3498db;
+        }
+        .advanced-settings {
+            background-color: #f0f0f0;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 10px;
+            display: none;
+        }
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 2s linear infinite;
+            display: inline-block;
+            margin-left: 10px;
+            vertical-align: middle;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Extractor de Información de PDF</h1>
+        
+        <div class="tabs">
+            <div class="tab active" id="tabArchivo">Archivo Local</div>
+            <div class="tab" id="tabURL">URL</div>
+        </div>
+        
+        <div class="tab-content active" id="contenidoArchivo">
+            <div class="form-group">
+                <label for="pdfFile">Seleccionar Archivo PDF:</label>
+                <input type="file" id="pdfFile" accept=".pdf">
+            </div>
+        </div>
+        
+        <div class="tab-content" id="contenidoURL">
+            <div class="form-group">
+                <label for="pdfURL">URL del PDF o Sitio Web:
+                    <div class="tooltip">ⓘ
+                        <span class="tooltiptext">Puede ingresar la URL directa de un PDF o la URL de un sitio web que contiene un PDF incrustado.</span>
+                    </div>
+                </label>
+                <input type="url" id="pdfURL" placeholder="https://ejemplo.com/documento.pdf o https://ejemplo.com/pagina-con-pdf">
+            </div>
+        </div>
+        
+        <div class="search-options">
+            <div class="form-group">
+                <label for="searchText">Texto a Buscar:</label>
+                <input type="text" id="searchText" placeholder="Ingrese texto para buscar">
+            </div>
+            
+            <div class="form-group">
+                <label for="pageRange">Rango de Páginas (opcional):</label>
+                <input type="text" id="pageRange" placeholder="Ej: 1-5, 8, 10-12 (vacío = todas)">
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label>Opciones de Búsqueda:
+                <span class="settings-icon" id="advancedSettingsToggle">⚙️ Opciones avanzadas</span>
+            </label>
+            <div class="input-group">
+                <input type="checkbox" id="caseSensitive">
+                <label for="caseSensitive" style="display: inline; font-weight: normal;">Distinguir mayúsculas/minúsculas</label>
+            </div>
+            <div class="input-group">
+                <input type="checkbox" id="wholeWord">
+                <label for="wholeWord" style="display: inline; font-weight: normal;">Palabras completas</label>
+            </div>
+            
+            <div class="advanced-settings" id="advancedSettings">
+                <div class="input-group">
+                    <input type="checkbox" id="preloadPages" checked>
+                    <label for="preloadPages" style="display: inline; font-weight: normal;">Precargar páginas (más rápido pero usa más memoria)</label>
+                </div>
+                <div class="input-group">
+                    <input type="checkbox" id="loadImagesLater">
+                    <label for="loadImagesLater" style="display: inline; font-weight: normal;">Cargar imágenes de páginas bajo demanda (más rápido)</label>
+                </div>
+                <div class="input-group">
+                    <label for="renderScale" style="display: inline; font-weight: normal;">Escala de renderizado:</label>
+                    <select id="renderScale" style="width: 100px; margin-left: 10px;">
+                        <option value="0.75">Baja (75%)</option>
+                        <option value="1.0" selected>Normal (100%)</option>
+                        <option value="1.5">Alta (150%)</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="contextSize" style="display: inline; font-weight: normal;">Tamaño del contexto:</label>
+                    <select id="contextSize" style="width: 100px; margin-left: 10px;">
+                        <option value="50">Pequeño</option>
+                        <option value="100" selected>Medio</option>
+                        <option value="200">Grande</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        
+        <button id="extractButton">Buscar en PDF</button>
+        <button id="cancelButton" style="background-color: #e74c3c; margin-left: 10px; display: none;">Cancelar</button>
+        
+        <div id="progressContainer" class="progress-container" style="display: none;">
+            <div id="progressBar" class="progress-bar">0%</div>
+        </div>
+        
+        <div id="resultContainer" style="display: none;">
+            <div class="form-group">
+                <label for="result">Resultados: <span id="resultSummary"></span></label>
+                <div id="result">Los resultados se mostrarán aquí...</div>
+            </div>
+            
+            <div class="page-selector" id="pageNavigation" style="display: none;">
+                <button id="prevPage">Anterior</button>
+                <span id="pageIndicator">Página 1 de 1</span>
+                <button id="nextPage">Siguiente</button>
+            </div>
+            
+            <div class="image-preview" id="pagePreview"></div>
+        </div>
+    </div>
+
+    <script>
+        // Configurar PDF.js con worker para procesamiento en segundo plano
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+        
+        // Variables globales
+        let pdfDoc = null;
+        let currentResultPage = 1;
+        let searchResults = [];
+        let abortController = null;
+        let pageCache = new Map(); // Caché para almacenar páginas procesadas
+        
+        // Referencias a elementos del DOM
+        const tabArchivo = document.getElementById('tabArchivo');
+        const tabURL = document.getElementById('tabURL');
+        const contenidoArchivo = document.getElementById('contenidoArchivo');
+        const contenidoURL = document.getElementById('contenidoURL');
+        const extractButton = document.getElementById('extractButton');
+        const cancelButton = document.getElementById('cancelButton');
+        const pdfFileInput = document.getElementById('pdfFile');
+        const pdfURLInput = document.getElementById('pdfURL');
+        const searchTextInput = document.getElementById('searchText');
+        const pageRangeInput = document.getElementById('pageRange');
+        const caseSensitiveCheckbox = document.getElementById('caseSensitive');
+        const wholeWordCheckbox = document.getElementById('wholeWord');
+        const preloadPagesCheckbox = document.getElementById('preloadPages');
+        const loadImagesLaterCheckbox = document.getElementById('loadImagesLater');
+        const renderScaleSelect = document.getElementById('renderScale');
+        const contextSizeSelect = document.getElementById('contextSize');
+        const resultDiv = document.getElementById('result');
+        const resultSummary = document.getElementById('resultSummary');
+        const progressContainer = document.getElementById('progressContainer');
+        const progressBar = document.getElementById('progressBar');
+        const resultContainer = document.getElementById('resultContainer');
+        const pageNavigation = document.getElementById('pageNavigation');
+        const pageIndicator = document.getElementById('pageIndicator');
+        const prevPageButton = document.getElementById('prevPage');
+        const nextPageButton = document.getElementById('nextPage');
+        const pagePreview = document.getElementById('pagePreview');
+        const advancedSettingsToggle = document.getElementById('advancedSettingsToggle');
+        const advancedSettings = document.getElementById('advancedSettings');
+        
+        // Gestión de opciones avanzadas
+        advancedSettingsToggle.addEventListener('click', () => {
+            advancedSettings.style.display = advancedSettings.style.display === 'none' ? 'block' : 'none';
+        });
+        
+        // Gestión de pestañas
+        tabArchivo.addEventListener('click', () => {
+            tabArchivo.classList.add('active');
+            tabURL.classList.remove('active');
+            contenidoArchivo.classList.add('active');
+            contenidoURL.classList.remove('active');
+        });
+        
+        tabURL.addEventListener('click', () => {
+            tabURL.classList.add('active');
+            tabArchivo.classList.remove('active');
+            contenidoURL.classList.add('active');
+            contenidoArchivo.classList.remove('active');
+        });
+        
+        // Botón de extracción
+        extractButton.addEventListener('click', async function() {
+            const searchText = searchTextInput.value.trim();
+            
+            if (searchText === '') {
+                alert('Por favor ingrese un texto para buscar.');
+                return;
+            }
+            
+            let source = null;
+            
+            if (tabArchivo.classList.contains('active')) {
+                if (!pdfFileInput.files || pdfFileInput.files.length === 0) {
+                    alert('Por favor seleccione un archivo PDF.');
+                    return;
+                }
+                source = { file: pdfFileInput.files[0] };
+            } else {
+                if (!pdfURLInput.value.trim()) {
+                    alert('Por favor ingrese una URL válida.');
+                    return;
+                }
+                source = { url: pdfURLInput.value.trim() };
+            }
+            
+            try {
+                // Configurar la interfaz para el procesamiento
+                extractButton.disabled = true;
+                cancelButton.style.display = 'inline-block';
+                pageCache.clear(); // Limpiar caché antes de procesar
+                
+                // Crear un nuevo AbortController para permitir cancelar la operación
+                abortController = new AbortController();
+                
+                await processPDF(source, searchText);
+            } catch (error) {
+                if (error.name === 'AbortError') {
+                    resultDiv.textContent = 'Búsqueda cancelada por el usuario.';
+                } else {
+                    console.error('Error en procesamiento:', error);
+                    resultDiv.textContent = `Error al procesar el PDF: ${error.message}`;
+                }
+                progressContainer.style.display = 'none';
+            } finally {
+                extractButton.disabled = false;
+                cancelButton.style.display = 'none';
+            }
+        });
+        
+        // Botón para cancelar el procesamiento
+        cancelButton.addEventListener('click', () => {
+            if (abortController) {
+                abortController.abort();
+                abortController = null;
+            }
+        });
+        
+        // Navegación entre páginas de resultados
+        prevPageButton.addEventListener('click', () => {
+            if (currentResultPage > 1) {
+                currentResultPage--;
+                displayResults();
+            }
+        });
+        
+        nextPageButton.addEventListener('click', () => {
+            if (currentResultPage < searchResults.length) {
+                currentResultPage++;
+                displayResults();
+            }
+        });
+        
+        // Función para parsear el rango de páginas
+        function parsePageRange(rangeString, numPages) {
+            if (!rangeString.trim()) {
+                return Array.from({ length: numPages }, (_, i) => i + 1);
+            }
+            
+            const pages = new Set();
+            const parts = rangeString.split(',');
+            
+            for (const part of parts) {
+                part.trim();
+                if (part.includes('-')) {
+                    const [start, end] = part.split('-').map(num => parseInt(num.trim()));
+                    if (!isNaN(start) && !isNaN(end) && start > 0 && end <= numPages && start <= end) {
+                        for (let i = start; i <= end; i++) {
+                            pages.add(i);
+                        }
+                    }
+                } else {
+                    const pageNum = parseInt(part.trim());
+                    if (!isNaN(pageNum) && pageNum > 0 && pageNum <= numPages) {
+                        pages.add(pageNum);
+                    }
+                }
+            }
+            
+            return [...pages].sort((a, b) => a - b);
+        }
+
+        // Función para encontrar PDFs en URLs de sitios web
+        async function findPDFInWebPage(url) {
+            try {
+                // Comprobamos si la URL termina en .pdf
+                if (url.toLowerCase().endsWith('.pdf')) {
+                    return url;
+                }
+                
+                // Podríamos intentar extraer el PDF de la página web aquí,
+                // pero esto requeriría un servidor proxy debido a políticas CORS.
+                // Para esta implementación, simplemente mostraremos un mensaje
+                resultDiv.textContent = "Detección automática de PDFs en sitios web no compatible en esta versión. Por favor proporcione una URL directa al PDF.";
+                progressContainer.style.display = 'none';
+                resultContainer.style.display = 'block';
+                throw new Error("URL no es un PDF directo");
+            } catch (error) {
+                throw error;
+            }
+        }
+        
+        // Función principal para procesar el PDF
+        async function processPDF(source, searchText) {
+            resultDiv.textContent = "Procesando PDF...";
+            progressContainer.style.display = 'block';
+            resultContainer.style.display = 'none';
+            pageNavigation.style.display = 'none';
+            progressBar.style.width = '5%';
+            progressBar.textContent = '5%';
+            
+            try {
+                // Cargar el PDF según la fuente
+                let loadingTask;
+                if (source.file) {
+                    const arrayBuffer = await readFileAsArrayBuffer(source.file);
+                    loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+                } else if (source.url) {
+                    // Comprobar si es una URL directa a un PDF o un sitio web
+                    try {
+                        const pdfUrl = await findPDFInWebPage(source.url);
+                        loadingTask = pdfjsLib.getDocument({
+                            url: pdfUrl,
+                            withCredentials: false
+                        });
+                    } catch (error) {
+                        // Si no es un PDF, mostramos el error y terminamos
+                        return;
+                    }
+                }
+                
+                progressBar.style.width = '10%';
+                progressBar.textContent = '10%';
+                
+                // Añadir un timeout para evitar que se quede colgado
+                const pdfPromise = loadingTask.promise;
+                const timeoutPromise = new Promise((_, reject) => {
+                    setTimeout(() => reject(new Error("Tiempo de carga excedido")), 30000);
+                });
+                
+                pdfDoc = await Promise.race([pdfPromise, timeoutPromise]);
+                const numPages = pdfDoc.numPages;
+                
+                progressBar.style.width = '20%';
+                progressBar.textContent = '20%';
+                
+                // Obtener las páginas a buscar según el rango especificado
+                const pagesToSearch = parsePageRange(pageRangeInput.value, numPages);
+                
+                // Configurar opciones de búsqueda
+                const caseSensitive = caseSensitiveCheckbox.checked;
+                const wholeWord = wholeWordCheckbox.checked;
+                const contextSize = parseInt(contextSizeSelect.value);
+                const preloadPages = preloadPagesCheckbox.checked;
+                const loadImagesLater = loadImagesLaterCheckbox.checked;
+                const renderScale = parseFloat(renderScaleSelect.value);
+                
+                // Crear expresión regular para búsqueda
+                let regex;
+                if (wholeWord) {
+                    const escapedText = searchText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                    regex = new RegExp(`\\b${escapedText}\\b`, caseSensitive ? 'g' : 'gi');
+                } else {
+                    regex = new RegExp(searchText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), caseSensitive ? 'g' : 'gi');
+                }
+                
+                // Buscar en las páginas seleccionadas
+                searchResults = [];
+                let totalMatchCount = 0;
+                let processedPages = 0;
+                const totalPages = pagesToSearch.length;
+                const progressPerPage = 70 / totalPages; // 70% del progreso dedicado a procesar páginas
+                
+                if (preloadPages) {
+                    // Método 1: Precargar todas las páginas (más rápido para búsquedas, pero usa más memoria)
+                    const pagePromises = pagesToSearch.map(pageNum => {
+                        return pdfDoc.getPage(pageNum)
+                            .then(async pageObj => {
+                                // Si el usuario ha cancelado, dejamos de procesar
+                                if (abortController && abortController.signal.aborted) {
+                                    throw new DOMException('Operación cancelada por el usuario', 'AbortError');
+                                }
+                                
+                                const textContent = await pageObj.getTextContent();
+                                const pageText = textContent.items.map(item => item.str).join(' ');
+                                
+                                let matches = [];
+                                let match;
+                                
+                                // Reiniciar lastIndex para evitar un error común con expresiones regulares globales
+                                regex.lastIndex = 0;
+                                
+                                while ((match = regex.exec(pageText)) !== null) {
+                                    const start = Math.max(0, match.index - contextSize);
+                                    const end = Math.min(pageText.length, match.index + match[0].length + contextSize);
+                                    const contextBefore = pageText.substring(start, match.index);
+                                    const contextAfter = pageText.substring(match.index + match[0].length, end);
+                                    
+                                    matches.push({
+                                        pageNum: pageNum,
+                                        matchText: match[0],
+                                        context: contextBefore + '<span class="highlight">' + match[0] + '</span>' + contextAfter,
+                                        position: match.index
+                                    });
+                                }
+                                
+                                if (matches.length > 0) {
+                                    let imageDataUrl = null;
+                                    if (!loadImagesLater) {
+                                        // Renderizar la imagen de la página solo si hay coincidencias
+                                        const viewport = pageObj.getViewport({ scale: renderScale });
+                                        const canvas = document.createElement('canvas');
+                                        canvas.width = viewport.width;
+                                        canvas.height = viewport.height;
+                                        
+                                        await pageObj.render({
+                                            canvasContext: canvas.getContext('2d'),
+                                            viewport: viewport
+                                        }).promise;
+                                        
+                                        imageDataUrl = canvas.toDataURL('image/jpeg', 0.8); // Usar JPEG con compresión
+                                    }
+                                    
+                                    searchResults.push({
+                                        pageNum: pageNum,
+                                        matches: matches,
+                                        imageDataUrl: imageDataUrl,
+                                        pageObj: pageObj // Guardar referencia para renderizar más tarde si es necesario
+                                    });
+                                    
+                                    totalMatchCount += matches.length;
+                                }
+                                
+                                processedPages++;
+                                const currentProgress = 20 + (processedPages / totalPages * 70);
+                                progressBar.style.width = `${currentProgress}%`;
+                                progressBar.textContent = `${Math.round(currentProgress)}%`;
+                                
+                                return { pageNum, matches };
+                            });
+                    });
+                    
+                    await Promise.all(pagePromises);
+                } else {
+                    // Método 2: Procesar las páginas secuencialmente (más lento, pero usa menos memoria)
+                    for (const pageNum of pagesToSearch) {
+                        // Si el usuario ha cancelado, dejamos de procesar
+                        if (abortController && abortController.signal.aborted) {
+                            throw new DOMException('Operación cancelada por el usuario', 'AbortError');
+                        }
+                        
+                        const pageObj = await pdfDoc.getPage(pageNum);
+                        const textContent = await pageObj.getTextContent();
+                        const pageText = textContent.items.map(item => item.str).join(' ');
+                        
+                        let matches = [];
+                        let match;
+                        
+                        // Reiniciar lastIndex
+                        regex.lastIndex = 0;
+                        
+                        while ((match = regex.exec(pageText)) !== null) {
+                            const start = Math.max(0, match.index - contextSize);
+                            const end = Math.min(pageText.length, match.index + match[0].length + contextSize);
+                            const contextBefore = pageText.substring(start, match.index);
+                            const contextAfter = pageText.substring(match.index + match[0].length, end);
+                            
+                            matches.push({
+                                pageNum: pageNum,
+                                matchText: match[0],
+                                context: contextBefore + '<span class="highlight">' + match[0] + '</span>' + contextAfter,
+                                position: match.index
+                            });
+                        }
+                        
+                        if (matches.length > 0) {
+                            let imageDataUrl = null;
+                            if (!loadImagesLater) {
+                                // Renderizar la imagen de la página
+                                const viewport = pageObj.getViewport({ scale: renderScale });
+                                const canvas = document.createElement('canvas');
+                                canvas.width = viewport.width;
+                                canvas.height = viewport.height;
+                                
+                                await pageObj.render({
+                                    canvasContext: canvas.getContext('2d'),
+                                    viewport: viewport
+                                }).promise;
+                                
+                                imageDataUrl = canvas.toDataURL('image/jpeg', 0.8);
+                            }
+                            
+                            searchResults.push({
+                                pageNum: pageNum,
+                                matches: matches,
+                                imageDataUrl: imageDataUrl,
+                                pageObj: pageObj
+                            });
+                            
+                            totalMatchCount += matches.length;
+                        }
+                        
+                        processedPages++;
+                        const currentProgress = 20 + (processedPages / totalPages * 70);
+                        progressBar.style.width = `${currentProgress}%`;
+                        progressBar.textContent = `${Math.round(currentProgress)}%`;
+                    }
+                }
+                
+                // Ordenar los resultados por número de página
+                searchResults.sort((a, b) => a.pageNum - b.pageNum);
+                
+                progressBar.style.width = '100%';
+                progressBar.textContent = '100%';
+                
+                // Mostrar resultados
+                if (searchResults.length > 0) {
+                    currentResultPage = 1;
+                    resultSummary.textContent = `(${totalMatchCount} coincidencia${totalMatchCount !== 1 ? 's' : ''} en ${searchResults.length} página${searchResults.length !== 1 ? 's' : ''})`;
+                    displayResults();
+                    resultContainer.style.display = 'block';
+                    if (searchResults.length > 1) {
+                        pageNavigation.style.display = 'flex';
+                    }
+                } else {
+                    resultDiv.textContent = `No se encontró "${searchText}" en el PDF.`;
+                    resultSummary.textContent = '';
+                    resultContainer.style.display = 'block';
+                    pagePreview.innerHTML = '';
+                }
+                
+                // Ocultar la barra de progreso
+                setTimeout(() => {
+                    progressContainer.style.display = 'none';
+                }, 500);
+                
+            } catch (error) {
+                if (error.name !== 'AbortError') {
+                    console.error('Error procesando PDF:', error);
+                }
+                throw error;
+            }
+        }
+        
+        // Función para cargar la imagen de una página bajo demanda
+        async function loadPageImage(result) {
+            if (result.imageDataUrl) {
+                return result.imageDataUrl;
+            }
+            
+            try {
+                // Si ya tenemos la página cargada, usamos esa
+                const pageObj = result.pageObj || await pdfDoc.getPage(result.pageNum);
+                const renderScale = parseFloat(renderScaleSelect.value);
+                const viewport = pageObj.getViewport
+    <script></script>
+</body>
+</html>

@@ -1,0 +1,565 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESTRUCTURA App - App Dashboard Pro</title>
+    <style>
+        :root {
+            --bg-color: #121212;
+            --header-bg: #1E1E1E;
+            --card-bg: #1E1E1E;
+            --card-hover: #2A2A2A;
+            --text-color: #ffffff;
+            --text-secondary: #aaaaaa;
+            --primary-color: #A855F7;
+            --border-color: #333333;
+            --folder-color: #A855F7;
+            --file-color: #6B7280;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+        
+        header {
+            background-color: var(--header-bg);
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .back-btn {
+            background-color: transparent;
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background-color 0.2s;
+        }
+        
+        .back-btn:hover {
+            background-color: var(--border-color);
+        }
+        
+        h1 {
+            font-size: 1.5rem;
+        }
+        
+        main {
+            padding: 1.5rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+        
+        @media (max-width: 768px) {
+            main {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .section {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        h2 {
+            margin-bottom: 1rem;
+            font-size: 1.25rem;
+        }
+        
+        textarea {
+            width: 100%;
+            height: 200px;
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            padding: 1rem;
+            font-family: monospace;
+            font-size: 0.95rem;
+            resize: none;
+            outline: none;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+        }
+        
+        .btn {
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background-color 0.2s;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .btn:hover {
+            background-color: var(--card-hover);
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        
+        .btn-primary:hover {
+            background-color: #9333EA;
+        }
+        
+        .templates-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .template-card {
+            background-color: var(--card-hover);
+            border-radius: 6px;
+            padding: 1rem;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .template-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .template-card h3 {
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+        
+        .template-card p {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        
+        .folder-structure {
+            padding: 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            margin-bottom: 1rem;
+            overflow: auto;
+            max-height: 300px;
+            font-family: monospace;
+        }
+        
+        .structure-item {
+            padding-left: 1.5rem;
+            position: relative;
+            margin-bottom: 0.25rem;
+        }
+        
+        .folder {
+            color: var(--folder-color);
+            font-weight: bold;
+        }
+        
+        .folder::before {
+            content: "📁";
+            margin-right: 0.5rem;
+        }
+        
+        .file {
+            color: var(--file-color);
+        }
+        
+        .file::before {
+            content: "📄";
+            margin-right: 0.5rem;
+        }
+        
+        .root-folder {
+            padding-left: 0;
+        }
+        
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1rem;
+            border-radius: 4px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            display: none;
+            z-index: 1000;
+            animation: slideIn 0.3s forwards;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>ESTRUCTURA App</h1>
+        <button class="back-btn" onclick="location.href='/'">Back to Dashboard</button>
+    </header>
+    
+    <main>
+        <div class="left-panel">
+            <div class="section">
+                <h2>Create Project Structure</h2>
+                <p style="color: var(--text-secondary); margin-bottom: 1rem;">Define your project structure and generate a downloadable zip file</p>
+                
+                <div class="folder-structure" id="structure-preview">
+                    <div class="structure-item root-folder folder">App Dashboard Pro</div>
+                    <div class="structure-item file">index.html</div>
+                    <div class="structure-item file">apps.json</div>
+                    <div class="structure-item file">app1.html</div>
+                    <div class="structure-item file">app2.html</div>
+                    <div class="structure-item file">app3.html</div>
+                </div>
+                
+                <h3 style="margin-bottom: 0.5rem;">Structure Definition</h3>
+                <textarea id="structure-input" placeholder="Define your folder structure here. Use indentation to indicate nesting.
+Example:
+App Dashboard Pro
+  index.html
+  apps.json
+  app1.html
+  app2.html
+  app3.html
+  assets/
+    css/
+      style.css
+    js/
+      main.js
+    images/
+      logo.png">App Dashboard Pro
+  index.html
+  apps.json
+  app1.html
+  app2.html
+  app3.html</textarea>
+                
+                <button id="update-preview-btn" class="btn">Update Preview</button>
+                <button id="generate-btn" class="btn btn-primary">Generate ZIP</button>
+            </div>
+        </div>
+        
+        <div class="right-panel">
+            <div class="section">
+                <h2>Templates</h2>
+                <p style="color: var(--text-secondary); margin-bottom: 1rem;">Choose a template to get started quickly</p>
+                
+                <div class="templates-container">
+                    <div class="template-card" data-template="basic-web">
+                        <h3>Basic Web Project</h3>
+                        <p>HTML, CSS, and JavaScript structure</p>
+                    </div>
+                    
+                    <div class="template-card" data-template="react-app">
+                        <h3>React App</h3>
+                        <p>Standard React application structure</p>
+                    </div>
+                    
+                    <div class="template-card" data-template="node-api">
+                        <h3>Node.js API</h3>
+                        <p>Backend API project structure</p>
+                    </div>
+                    
+                    <div class="template-card" data-template="full-stack">
+                        <h3>Full Stack App</h3>
+                        <p>Frontend and backend structure</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>File Templates</h2>
+                <p style="color: var(--text-secondary); margin-bottom: 1rem;">Add file templates for common files in your structure</p>
+                
+                <div class="template-form">
+                    <h3 style="margin-bottom: 0.5rem;">HTML Template (index.html)</h3>
+                    <textarea id="html-template" placeholder="<!DOCTYPE html>
+<html lang='en'>
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <title>App Dashboard Pro</title>
+    <link rel='stylesheet' href='assets/css/style.css'>
+</head>
+<body>
+    <h1>App Dashboard Pro</h1>
+    <script src='assets/js/main.js'></script>
+</body>
+</html>"><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>App Dashboard Pro</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #121212;
+            color: #ffffff;
+            margin: 0;
+            padding: 20px;
+        }
+        header {
+            background-color: #1E1E1E;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        h1 {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>App Dashboard Pro</h1>
+    </header>
+    <main>
+        <p>Welcome to your new project!</p>
+    </main>
+</body>
+</html></textarea>
+                    
+                    <button id="add-template-btn" class="btn">Add to Structure</button>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <div id="notification" class="notification"></div>
+    
+    <script>
+        // Update structure preview
+        document.getElementById('update-preview-btn').addEventListener('click', () => {
+            updateStructurePreview();
+        });
+        
+        function updateStructurePreview() {
+            const structureInput = document.getElementById('structure-input').value;
+            const structurePreview = document.getElementById('structure-preview');
+            
+            // Clear current preview
+            structurePreview.innerHTML = '';
+            
+            // Parse structure
+            const lines = structureInput.split('\n');
+            let currentLevel = 0;
+            let structure = [];
+            
+            lines.forEach(line => {
+                if (!line.trim()) return;
+                
+                // Calculate indentation level
+                const leadingSpaces = line.match(/^\s*/)[0].length;
+                const level = Math.floor(leadingSpaces / 2);
+                const name = line.trim();
+                
+                // Add to structure
+                structure.push({
+                    name,
+                    level,
+                    isFolder: name.endsWith('/')
+                });
+            });
+            
+            // Create DOM elements
+            structure.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = `structure-item ${item.level === 0 ? 'root-folder' : ''} ${item.isFolder || item.name.includes('/') ? 'folder' : 'file'}`;
+                div.style.paddingLeft = `${item.level * 1.5}rem`;
+                
+                // Remove trailing slash for display
+                div.textContent = item.name.replace(/\/$/, '');
+                
+                structurePreview.appendChild(div);
+            });
+            
+            showNotification('Preview updated');
+        }
+        
+        // Template selection
+        const templateCards = document.querySelectorAll('.template-card');
+        templateCards.forEach(card => {
+            card.addEventListener('click', () => {
+                const templateType = card.getAttribute('data-template');
+                loadTemplate(templateType);
+            });
+        });
+        
+        function loadTemplate(templateType) {
+            let templateStructure = '';
+            
+            switch(templateType) {
+                case 'basic-web':
+                    templateStructure = `MyWebProject
+  index.html
+  css/
+    style.css
+  js/
+    main.js
+  images/
+    logo.png`;
+                    break;
+                case 'react-app':
+                    templateStructure = `ReactApp
+  public/
+    index.html
+    favicon.ico
+  src/
+    components/
+      App.js
+      Header.js
+      Footer.js
+    styles/
+      index.css
+    index.js
+  package.json
+  README.md`;
+                    break;
+                case 'node-api':
+                    templateStructure = `NodeAPI
+  src/
+    controllers/
+      userController.js
+    models/
+      userModel.js
+    routes/
+      userRoutes.js
+    middleware/
+      auth.js
+    app.js
+  config/
+    database.js
+  package.json
+  .env`;
+                    break;
+                case 'full-stack':
+                    templateStructure = `FullStackApp
+  client/
+    public/
+      index.html
+    src/
+      components/
+        App.js
+      styles/
+        index.css
+      index.js
+    package.json
+  server/
+    controllers/
+      apiController.js
+    models/
+      dataModel.js
+    routes/
+      apiRoutes.js
+    app.js
+  package.json
+  README.md`;
+                    break;
+            }
+            
+            document.getElementById('structure-input').value = templateStructure;
+            updateStructurePreview();
+            showNotification(`${templateType} template loaded`);
+        }
+        
+        // Add template to structure
+        document.getElementById('add-template-btn').addEventListener('click', () => {
+            const htmlTemplate = document.getElementById('html-template').value;
+            // In a real app, this would save the template for file generation
+            showNotification('Template added to project');
+        });
+        
+        // Generate ZIP
+        document.getElementById('generate-btn').addEventListener('click', () => {
+            const structure = document.getElementById('structure-input').value;
+            
+            // In a real app, this would generate actual files and a ZIP
+            // Here we'll simulate it
+            simulateZipGeneration();
+        });
+        
+        function simulateZipGeneration() {
+            showNotification('Generating project structure...');
+            
+            setTimeout(() => {
+                // Create a simple text file to download as placeholder
+                const structure = document.getElementById('structure-input').value;
+                const htmlTemplate = document.getElementById('html-template').value;
+                
+                const content = `
+PROJECT STRUCTURE EXPORT
+=======================
+
+Structure:
+${structure}
+
+Sample Template (index.html):
+${htmlTemplate}
+
+=======================
+This is a placeholder for the actual ZIP file that would be generated
+with a real implementation of the ESTRUCTURA App.
+`;
+                
+                const blob = new Blob([content], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'project-structure.txt';
+                a.click();
+                
+                URL.revokeObjectURL(url);
+                
+                showNotification('Project structure generated! (Placeholder download)');
+            }, 1500);
+        }
+        
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.style.display = 'block';
+            
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 3000);
+        }
+        
+        // Initial preview
+        updateStructurePreview();
+    </script>
+</body>
+</html>

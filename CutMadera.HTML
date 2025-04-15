@@ -1,0 +1,478 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Despiece de Paneles - Dashboard</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <style>
+        .panel-cutting {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+        }
+        
+        .input-section, .result-section {
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .form-row .form-group {
+            flex: 1;
+            margin-bottom: 0;
+        }
+        
+        .cut-list {
+            margin: 1.5rem 0;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .cut-list table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .cut-list th, .cut-list td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .cut-list th {
+            background-color: #f5f5f5;
+            font-weight: 500;
+        }
+        
+        .cut-list tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .cut-visualization {
+            margin: 1.5rem 0;
+            border: 1px solid #ddd;
+            padding: 1rem;
+            border-radius: 8px;
+            min-height: 300px;
+            position: relative;
+        }
+        
+        .panel {
+            border: 2px solid #333;
+            position: relative;
+            margin-bottom: 20px;
+            background-color: #f0f0f0;
+        }
+        
+        .cut {
+            position: absolute;
+            background-color: #005ba1;
+            border: 1px solid #004a87;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+        }
+        
+        .actions {
+            margin-top: 1.5rem;
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .summary {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background-color: #f5f5f5;
+            border-radius: 8px;
+        }
+        
+        @media (max-width: 768px) {
+            .form-row {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1 class="logo">Dashboard de Herramientas</h1>
+            <nav>
+                <ul>
+                    <li><a href="../index.html">Inicio</a></li>
+                    <li><a href="coloraprox.html">Simulador de Colores</a></li>
+                    <li><a href="despiece.html" class="active">Despiece de Paneles</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <h2>Despiece de Paneles</h2>
+        <p>Optimiza el corte de paneles para reducir el desperdicio de material.</p>
+        
+        <div class="panel-cutting">
+            <div class="input-section">
+                <h3>Datos de Entrada</h3>
+                
+                <div class="form-group">
+                    <label for="panel-size">Tamaño del Panel Estándar:</label>
+                    <select id="panel-size" class="form-control">
+                        <option value="2440x1220">2440 x 1220 mm</option>
+                        <option value="2500x1250">2500 x 1250 mm</option>
+                        <option value="3050x1525">3050 x 1525 mm</option>
+                        <option value="custom">Personalizado</option>
+                    </select>
+                </div>
+                
+                <div id="custom-panel" style="display: none;">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="panel-width">Ancho (mm):</label>
+                            <input type="number" id="panel-width" class="form-control" value="2440">
+                        </div>
+                        <div class="form-group">
+                            <label for="panel-height">Alto (mm):</label>
+                            <input type="number" id="panel-height" class="form-control" value="1220">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="material-thickness">Espesor del material (mm):</label>
+                    <input type="number" id="material-thickness" class="form-control" value="18">
+                </div>
+                
+                <div class="form-group">
+                    <label for="saw-kerf">Ancho del corte (mm):</label>
+                    <input type="number" id="saw-kerf" class="form-control" value="3" step="0.1">
+                </div>
+                
+                <h4>Piezas Requeridas:</h4>
+                <div id="pieces-container">
+                    <div class="piece-entry">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Ancho (mm):</label>
+                                <input type="number" class="piece-width form-control" value="800">
+                            </div>
+                            <div class="form-group">
+                                <label>Alto (mm):</label>
+                                <input type="number" class="piece-height form-control" value="600">
+                            </div>
+                            <div class="form-group">
+                                <label>Cantidad:</label>
+                                <input type="number" class="piece-quantity form-control" value="2" min="1">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <button id="add-piece" class="btn">Añadir Pieza</button>
+                
+                <div class="actions">
+                    <button id="calculate-cuts" class="btn btn-primary">Calcular Despiece</button>
+                    <button id="reset-form" class="btn">Reiniciar</button>
+                </div>
+            </div>
+            
+            <div class="result-section">
+                <h3>Resultados del Despiece</h3>
+                
+                <div class="summary" id="summary">
+                    <p>Introduce los datos y haz clic en "Calcular Despiece" para ver los resultados.</p>
+                </div>
+                
+                <div class="cut-list">
+                    <table id="cut-table">
+                        <thead>
+                            <tr>
+                                <th>Panel</th>
+                                <th>Pieza</th>
+                                <th>Dimensiones</th>
+                                <th>Posición (X,Y)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cut-list-body">
+                            <tr>
+                                <td colspan="4">Aún no se han calculado cortes</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h4>Visualización del Despiece</h4>
+                <div class="cut-visualization" id="visualization">
+                    <p>La visualización aparecerá aquí después de calcular.</p>
+                </div>
+                
+                <div class="actions">
+                    <button id="export-pdf" class="btn btn-primary">Exportar a PDF</button>
+                    <button id="export-csv" class="btn">Exportar a CSV</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            Dashboard de Aplicaciones &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+
+    <!-- GPT Engineer script tag required for Select feature -->
+    <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Actualizar año en el footer
+            document.getElementById("current-year").textContent = new Date().getFullYear();
+            
+            // Referencias a elementos DOM
+            const panelSizeSelect = document.getElementById("panel-size");
+            const customPanelDiv = document.getElementById("custom-panel");
+            const panelWidthInput = document.getElementById("panel-width");
+            const panelHeightInput = document.getElementById("panel-height");
+            const materialThicknessInput = document.getElementById("material-thickness");
+            const sawKerfInput = document.getElementById("saw-kerf");
+            const piecesContainer = document.getElementById("pieces-container");
+            const addPieceBtn = document.getElementById("add-piece");
+            const calculateBtn = document.getElementById("calculate-cuts");
+            const resetBtn = document.getElementById("reset-form");
+            const cutListBody = document.getElementById("cut-list-body");
+            const visualization = document.getElementById("visualization");
+            const summaryDiv = document.getElementById("summary");
+            const exportPdfBtn = document.getElementById("export-pdf");
+            const exportCsvBtn = document.getElementById("export-csv");
+            
+            // Estado global para almacenar resultados
+            let cuttingResults = {
+                panels: [],
+                totalPanels: 0,
+                totalArea: 0,
+                usedArea: 0,
+                wasteArea: 0,
+                wastePercentage: 0
+            };
+            
+            // Evento para mostrar/ocultar campos de panel personalizado
+            panelSizeSelect.addEventListener("change", function() {
+                if (this.value === "custom") {
+                    customPanelDiv.style.display = "block";
+                } else {
+                    customPanelDiv.style.display = "none";
+                    const [width, height] = this.value.split("x");
+                    panelWidthInput.value = width;
+                    panelHeightInput.value = height;
+                }
+            });
+            
+            // Evento para añadir una nueva pieza
+            addPieceBtn.addEventListener("click", function() {
+                const pieceEntry = document.createElement("div");
+                pieceEntry.className = "piece-entry";
+                pieceEntry.innerHTML = `
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Ancho (mm):</label>
+                            <input type="number" class="piece-width form-control" value="500">
+                        </div>
+                        <div class="form-group">
+                            <label>Alto (mm):</label>
+                            <input type="number" class="piece-height form-control" value="400">
+                        </div>
+                        <div class="form-group">
+                            <label>Cantidad:</label>
+                            <input type="number" class="piece-quantity form-control" value="1" min="1">
+                        </div>
+                        <div class="form-group" style="flex: 0.2;">
+                            <label>&nbsp;</label>
+                            <button class="btn remove-piece" style="width: 100%;">X</button>
+                        </div>
+                    </div>
+                `;
+                piecesContainer.appendChild(pieceEntry);
+                
+                // Añadir evento para eliminar la pieza
+                pieceEntry.querySelector(".remove-piece").addEventListener("click", function() {
+                    piecesContainer.removeChild(pieceEntry);
+                });
+            });
+            
+            // Evento para resetear el formulario
+            resetBtn.addEventListener("click", function() {
+                panelSizeSelect.value = "2440x1220";
+                customPanelDiv.style.display = "none";
+                panelWidthInput.value = "2440";
+                panelHeightInput.value = "1220";
+                materialThicknessInput.value = "18";
+                sawKerfInput.value = "3";
+                
+                // Eliminar todas las piezas excepto la primera
+                while (piecesContainer.children.length > 1) {
+                    piecesContainer.removeChild(piecesContainer.lastChild);
+                }
+                
+                // Resetear la primera pieza
+                const firstPiece = piecesContainer.querySelector(".piece-entry");
+                firstPiece.querySelector(".piece-width").value = "800";
+                firstPiece.querySelector(".piece-height").value = "600";
+                firstPiece.querySelector(".piece-quantity").value = "2";
+                
+                // Resetear resultados
+                cutListBody.innerHTML = "<tr><td colspan='4'>Aún no se han calculado cortes</td></tr>";
+                visualization.innerHTML = "<p>La visualización aparecerá aquí después de calcular.</p>";
+                summaryDiv.innerHTML = "<p>Introduce los datos y haz clic en 'Calcular Despiece' para ver los resultados.</p>";
+                
+                // Resetear resultados globales
+                cuttingResults = {
+                    panels: [],
+                    totalPanels: 0,
+                    totalArea: 0,
+                    usedArea: 0,
+                    wasteArea: 0,
+                    wastePercentage: 0
+                };
+            });
+            
+            // Función para obtener piezas del formulario
+            function getPiecesFromForm() {
+                const pieces = [];
+                const pieceEntries = piecesContainer.querySelectorAll(".piece-entry");
+                
+                pieceEntries.forEach((entry, index) => {
+                    const width = parseInt(entry.querySelector(".piece-width").value);
+                    const height = parseInt(entry.querySelector(".piece-height").value);
+                    const quantity = parseInt(entry.querySelector(".piece-quantity").value);
+                    
+                    if (width > 0 && height > 0 && quantity > 0) {
+                        for (let i = 0; i < quantity; i++) {
+                            pieces.push({
+                                id: `P${index+1}-${i+1}`,
+                                width: width,
+                                height: height,
+                                area: width * height,
+                                x: null,
+                                y: null,
+                                panel: null
+                            });
+                        }
+                    }
+                });
+                
+                // Ordenar piezas por área (de mayor a menor)
+                return pieces.sort((a, b) => b.area - a.area);
+            }
+            
+            // Algoritmo de optimización de cortes (Bin Packing)
+            function optimizeCuts(pieces, panelWidth, panelHeight, sawKerf) {
+                const panels = [];
+                let currentPanel = null;
+                let panelId = 1;
+                
+                // Función para encontrar el mejor espacio disponible en el panel actual
+                function findBestPosition(piece, spaces) {
+                    let bestSpace = null;
+                    let bestScore = Infinity;
+                    
+                    // Probar pieza en ambas orientaciones
+                    const orientations = [
+                        { width: piece.width, height: piece.height },
+                        { width: piece.height, height: piece.width } // Girada 90 grados
+                    ];
+                    
+                    for (const space of spaces) {
+                        for (const orientation of orientations) {
+                            if (orientation.width <= space.width && orientation.height <= space.height) {
+                                // Calcular puntuación (menor es mejor)
+                                const score = Math.min(
+                                    space.width - orientation.width,
+                                    space.height - orientation.height
+                                );
+                                
+                                if (score < bestScore) {
+                                    bestScore = score;
+                                    bestSpace = {
+                                        space: space,
+                                        orientation: orientation
+                                    };
+                                }
+                            }
+                        }
+                    }
+                    
+                    return bestSpace;
+                }
+                
+                // Procesar cada pieza
+                for (const piece of pieces) {
+                    // Si no hay panel actual o no cabe en ningún espacio disponible
+                    if (!currentPanel) {
+                        currentPanel = {
+                            id: panelId++,
+                            width: panelWidth,
+                            height: panelHeight,
+                            cuts: [],
+                            spaces: [{ x: 0, y: 0, width: panelWidth, height: panelHeight }],
+                            usedArea: 0
+                        };
+                        panels.push(currentPanel);
+                    }
+                    
+                    const bestPosition = findBestPosition(piece, currentPanel.spaces);
+                    
+                    if (bestPosition) {
+                        const { space, orientation } = bestPosition;
+                        
+                        // Colocar la pieza
+                        const x = space.x;
+                        const y = space.y;
+                        const w = orientation.width;
+                        const h = orientation.height;
+                        
+                        // Actualizar la pieza con su posición
+                        piece.x = x;
+                        piece.y = y;
+                        piece.panel = currentPanel.id;
+                        piece.width = w;
+                        piece.height = h;
+                        
+                        // Añadir el corte al panel actual
+                        currentPanel.cuts.push({
+                            id: piece.id,
+                            x: x,
+                            y: y,
+                            width: w,
+                            height: h
+                        });
+                        
+                        // Actualizar área utilizada
+                        currentPanel.usedArea += w * h;
+                        
+                        // Eliminar el espacio utilizado
+                        const spaceIndex = currentPanel.spaces.indexOf(space);
+                        currentPanel.spaces.splice(spaceIndex, 1);
+                        
+                        // Crear nuevos espacios (teniendo en cuenta el ancho del corte)
+                        const rightSpace = {
+                            x: x + w + sawKerf,
+                            y: y,
+                            width: space.width - w - sawKerf,
+                            height: h
+                        };
+                        
+                        const bottomSpace = {
+                            x: x,
+                            y: y + h + sawKerf,
+                            width: spa

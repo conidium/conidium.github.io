@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visor de Archivos</title>
+    <style>
+        :root {
+            --bg-color: #121212;
+            --text-color: #f0f0f0;
+            --primary-color: #6200ee;
+            --secondary-color: #03dac6;
+            --panel-color: #1e1e1e;
+            --border-color: #333;
+            --hover-color: #2d2d2d;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            transition: all 0.3s ease;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 20px;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .theme-toggle {
+            background: none;
+            border: none;
+            color: var(--text-color);
+            cursor: pointer;
+            font-size: 16px;
+            padding: 8px 12px;
+            border-radius: 4px;
+            background-color: var(--panel-color);
+        }
+
+        .upload-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 2px dashed var(--border-color);
+            border-radius: 8px;
+            padding: 40px 20px;
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .upload-area:hover {
+            border-color: var(--primary-color);
+            background-color: var(--hover-color);
+        }
+
+        .upload-area i {
+            font-size: 48px;
+            margin-bottom: 15px;
+            color: var(--secondary-color);
+        }
+
+        .upload-area p {
+            margin: 10px 0 0;
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: space-between;
+        }
+
+        .format-selector {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .format-btn {
+            background-color: var(--panel-color);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 8px 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .format-btn:hover {
+            background-color: var(--hover-color);
+        }
+
+        .format-btn.active {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            background-color: var(--panel-color);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 8px 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .action-btn:hover {
+            background-color: var(--hover-color);
+        }
+
+        .action-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .action-btn i {
+            font-size: 16px;
+        }
+
+        .download-btn {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .viewer-container {
+            display: flex;
+            height: 400px;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        .file-explorer {
+            width: 250px;
+            background-color: var(--panel-color);
+            border-right: 1px solid var(--border-color);
+            overflow-y: auto;
+            padding: 10px;
+            flex-shrink: 0;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 10px;
+            cursor: pointer;
+            border-radius: 4px;
+            margin-bottom: 5px;
+            transition: all 0.2s ease;
+        }
+
+        .file-item:hover {
+            background-color: var(--hover-color);
+        }
+
+        .file-item.active {
+            background-color: var(--hover-color);
+        }
+
+        .file-item i {
+            margin-right: 8px;
+        }
+
+        .file-viewer {
+            flex-grow: 1;
+            overflow: auto;
+            position: relative;
+        }
+
+        .text-viewer {
+            padding: 15px;
+            white-space: pre-wrap;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .table-viewer {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table-viewer th, .table-viewer td {
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            text-align: left;
+        }
+
+        .table-viewer th {
+            background-color: var(--panel-color);
+            position: sticky;
+            top: 0;
+        }
+
+        .json-viewer {
+            padding: 15px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .json-key {
+            color: var(--secondary-color);
+        }
+
+        .json-string {
+            color: #ce9178;
+        }
+
+        .json-number {
+            color: #b5cea8;
+        }
+
+        .json-boolean {
+            color: #569cd6;
+        }
+
+        .json-null {
+            color: #569cd6;
+        }
+
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            background-color: var(--panel-color);
+            border-top: 1px solid var(--border-color);
+            font-size: 14px;
+        }
+
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #666;
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .empty-state p {
+            margin: 0;
+        }
+
+        .convert-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: var(--panel-color);
+            border-radius: 8px;
+            max-width: 400px;
+            width: 100%;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 20px;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            color: var(--text-color);
+            cursor: pointer;
+            font-size: 20px;
+        }
+
+        .modal-body {
+            margin-bottom: 20px;
+        }
+
+        .format-option {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .format-option input {
+            margin-right: 10px;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .modal-btn {
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            border: 1px solid var(--border-color);
+            background-color: var(--panel-color);
+            color: var(--text-color);
+        }
+
+        .convert-btn {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        @media (max-width: 768px) {
+            .viewer-container {
+                flex-direction: column;
+                height: 600px;
+            }
+
+            .file-explorer {
+                width: 100%;
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
+                max-height: 150px;
+            }
+
+            .controls {
+                flex-direction: column;
+            }
+
+            .format-selector, .action-buttons {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        /* Estilos para tema claro */
+        body.light-theme {
+            --bg-color: #f5f5f5;
+            --text-color: #333;
+            --primary-color: #6200ee;
+            --secondary-color: #018786;
+            --panel-color: #ffffff;
+            --border-color: #ddd;
+            --hover-color: #eee;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Visor de Archivos</h1>
+            <button id="themeToggle" class="theme-toggle">
+                <i class="fas fa-sun"></i> Tema Claro
+            </button>
+        </header>
+
+        <div id="dropArea" class="upload-area">
+            <i class="fas fa-upload"></i>
+            <h2>Arrastra y suelta tus archivos aquí</h2>
+            <p>O haz clic para seleccionar archivos</p>
+            <input type="file" id="fileInput" multiple style="display: none;">
+        </div>
+
+        <div class="controls">
+            <div class="format-selector">
+                <button class="format-btn active" data-format="all">Todos</button>
+                <button class="format-btn" data-format="json">JSON</button>
+                <button class="format-btn" data-format="csv">CSV</button>
+                <button class="format-btn" data-format="txt">TXT</button>
+                <button class="format-btn" data-format="html">HTML</button>
+            </div>
+            <div class="action-buttons">
+                <button id="convertBtn" class="action-btn" disabled>
+                    <i class="fas fa-exchange-alt"></i> Convertir
+                </button>
+                <button id="downloadBtn" class="action-btn download-btn" disabled>
+                    <i class="fas fa-download"></i> Descargar
+                </button>
+            </div>
+        </div>
+
+        <div class="viewer-container">
+            <div class="file-explorer" id="fileExplorer">
+                <div class="empty-state">
+                    <i class="fas fa-folder-open"></i>
+                    <p>No hay archivos</p>
+                </div>
+            </div>
+            <div class="file-viewer" id="fileViewer">
+                <div class="empty-state">
+                    <i class="fas fa-file-alt"></i>
+                    <p>Selecciona un archivo para visualizar</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="status-bar">
+            <div id="fileInfo">No hay archivo seleccionado</div>
+            <div id="fileSize"></div>
+        </div>
+    </div>
+
+    <div class="convert-modal" id="convertModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Convertir Archivo</h2>
+                <button class="close-modal" id="closeModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Selecciona el formato de salida:</p>
+                <div class="format-options" id="formatOptions">
+                    <div class="format-option">
+                        <input type="radio" id="formatJson" name="format" value="json">
+                        <label for="formatJson">JSON</label>
+                    </div>
+                    <div class="format-option">
+                        <input type="radio" id="formatCsv" name="format" value="csv">
+                        <label for="formatCsv">CSV</label>
+                    </div>
+                    <div class="format-option">
+                        <input type="radio" id="formatTxt" name="format" value="txt">
+                        <label for="formatTxt">Texto plano</label>
+                    </div>
+                    <div class="format-option">
+                        <input type="radio" id="formatHtml" name="format" value="html">
+                        <label for="formatHtml">HTML</label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn" id="cancelConvert">Cancelar</button>
+                <button class="modal-btn convert-btn" id="confirmConvert">Convertir</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Referencias a elementos DOM
+            const dropArea = document.getElementById('dropArea');
+            const fileInput = document.getElementById('fileInput');
+            const fileExplorer = document.getElementById('fileExplorer');
+            const fileViewer = document.getElementById('fileViewer');
+            const fileInfo = document.getElementById('fileInfo');
+            const fileSize = document.getElementById('fileSize');
+            const themeToggle = document.getElementById('themeToggle');
+            const formatButtons = document.querySelectorAll('.format-btn');
+            const convertBtn = document.getElementById('convertBtn');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const convertModal = document.getElementById('convertModal');
+            const closeModal = document.getElementById('closeModal');
+            const cancelConvert = document.getElementById('cancelConvert');
+            const confirmConvert = document.getElementById('confirmConvert');
+            const formatOptions = document.getElementById('formatOptions');
+
+            // Estado de la aplicación
+            let files = [];
+            let currentFile = null;
+            let currentFormat = 'all';
+            let isDarkTheme = true;
+
+            // Inicialización
+            initEventListeners();
+
+            // Configurar listeners de eventos
+            function initEventListeners() {
+                // Eventos para arrastrar y soltar archivos
+                dropArea.addEventListener('click', () => fileInput.click());
+                fileInput.addEventListener('change', handleFileSelection);
+                
+                dropArea.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    dropArea.style.borderColor = 'var(--primary-color)';
+                    dropArea.style.backgroundColor = 'var(--hover-color)';
+                });
+                
+                dropArea.addEventListener('dragleave', () => {
+                    dropArea.style.borderColor = 'var(--border-color)';
+                    dropArea.style.backgroundColor = '';
+                });
+                
+                dropArea.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    dropArea.style.borderColor = 'var(--border-color)';
+                    dropArea.style.backgroundColor = '';
+                    
+                    if (e.dataTransfer.files.length > 0) {
+                        handleFiles(e.dataTransfer.files);
+                    }
+                });
+
+                // Eventos para cambiar el tema
+                themeToggle.addEventListener('click', toggleTheme);
+
+                // Eventos para filtrar por formato
+                formatButtons.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        formatButtons.forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        currentFormat = btn.dataset.format;
+                        updateFileExplorer();
+                    });
+                });
+
+                // Eventos para convertir y descargar
+                convertBtn.addEventListener('click', openConvertModal);
+                downloadBtn.addEventListener('click', downloadCurrentFile);
+                
+                // Eventos del modal
+                closeModal.addEventListener('click', closeConvertModal);
+                cancelConvert.addEventListener('click', closeConvertModal);
+                confirmConvert.addEventListener('click', convertFile);
+
+                // Prevenir que el navegador abra los archivos por defecto
+                document.addEventListener('dragover', (e) => e.preventDefault());
+                document.addEventListener('drop', (e) => e.preventDefault());
+            }
+
+            // Manejar selección de archivos desde el input
+            function handleFileSelection(e) {
+                if (e.target.files.length > 0) {
+                    handleFiles(e.target.files);
+                }
+            }
+
+            // Procesar archivos seleccionados
+            function handleFiles(fileList) {
+                for (const file of fileList) {
+                    // Verificar si el archivo ya existe en la lista
+                    if (!files.some(f => f.name === file.name)) {
+                        files.push(file);
+                    }
+                }
+                
+                updateFileExplorer();
+                enableButtons();
+            }
+
+            // Actualizar el explorador de archivos
+            function updateFileExplorer() {
+                fileExplorer.innerHTML = '';
+                
+                const filteredFiles = currentFormat === 'all' 
+                    ? files 
+                    : files.filter(file => getFileExtension(file.name) === currentFormat);
+                
+                if (filteredFiles.length === 0) {
+                    const emptyState = document.createElement('div');
+                    emptyState.className = 'empty-state';
+                    emptyState.innerHTML = `
+                        <i class="fas fa-folder-open"></i>
+                        <p>No hay archivos${currentFormat !== 'all' ? ' con este formato' : ''}</p>
+                    `;
+                    fileExplorer.appendChild(emptyState);
+                    return;
+                }
+                
+                filteredFiles.forEach(file => {
+                    const fileItem = document.createElement('div');
+                    fileItem.className = 'file-item';
+                    if (currentFile && currentFile.name === file.name) {
+                        fileItem.classList.add('active');
+                    }
+                    
+                    const icon = document.createElement('i');
+                    icon.className = getFileIcon(file.name);
+                    
+                    const nameSpan = document.createElement('span');
+                    nameSpan.textContent = file.name;
+                    
+                    fileItem.appendChild(icon);
+                    fileItem.appendChild(nameSpan);
+                    fileItem.addEventListener('click', () => {
+                        document.querySelectorAll('.file-item').forEach(item => item.classList.remove('active'));
+                        fileItem.classList.add('active');
+                        loadFile(file);
+                    });
+        

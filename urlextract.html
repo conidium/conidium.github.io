@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL Extractor - App Dashboard Pro</title>
+    <style>
+        :root {
+            --bg-color: #121212;
+            --header-bg: #1E1E1E;
+            --card-bg: #1E1E1E;
+            --card-hover: #2A2A2A;
+            --text-color: #ffffff;
+            --text-secondary: #bbbbbb;
+            --primary-color: #10B981;
+            --border-color: #333333;
+        }
+
+        body.light-theme {
+            --bg-color: #ffffff;
+            --header-bg: #f5f5f5;
+            --card-bg: #ffffff;
+            --card-hover: #f0f0f0;
+            --text-color: #333333;
+            --text-secondary: #666666;
+            --border-color: #cccccc;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        header {
+            background-color: var(--header-bg);
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .header-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .back-btn, .theme-toggle {
+            background-color: transparent;
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background-color 0.2s;
+        }
+
+        .back-btn:hover, .theme-toggle:hover {
+            background-color: var(--border-color);
+        }
+
+        h1 {
+            font-size: 1.5rem;
+        }
+
+        main {
+            padding: 1.5rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .input-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .input-container {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            transition: opacity 0.3s ease;
+        }
+
+        .input-url {
+            flex: 1;
+            padding: 0.75rem;
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 1rem;
+            outline: none;
+        }
+
+        .input-url:focus {
+            border-color: var(--primary-color);
+        }
+
+        .btn {
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background-color 0.2s;
+        }
+
+        .btn:hover {
+            background-color: var(--card-hover);
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .btn-primary:hover {
+            background-color: #0D9668;
+        }
+
+        .btn:disabled {
+            background-color: var(--border-color);
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .toggle-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        textarea {
+            width: 100%;
+            height: 200px;
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            padding: 1rem;
+            font-family: monospace;
+            font-size: 0.95rem;
+            resize: none;
+            outline: none;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+        }
+
+        .results-section {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: opacity 0.3s ease;
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.5rem;
+        }
+
+        .results-count {
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+
+        .controls {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .filter-input {
+            padding: 0.5rem;
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 0.9rem;
+            flex: 1;
+        }
+
+        .results-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .result-item {
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+            word-break: break-all;
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .result-link {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .result-link:hover {
+            text-decoration: underline;
+        }
+
+        .loader {
+            display: none;
+            border: 3px solid var(--card-bg);
+            border-radius: 50%;
+            border-top: 3px solid var(--primary-color);
+            width: 25px;
+            height: 25px;
+            margin: 1rem auto;
+            animation: spin 1s linear infinite;
+        }
+
+        .status-message {
+            text-align: center;
+            color: var(--text-secondary);
+            margin: 1rem 0;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .hidden {
+            opacity: 0;
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .input-container {
+                flex-direction: column;
+            }
+
+            .btn-primary {
+                width: 100%;
+            }
+
+            .controls {
+                flex-direction: column;
+            }
+
+            .filter-input {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>URL Extractor</h1>
+        <div class="header-buttons">
+            <button class="theme-toggle" aria-label="Toggle light/dark theme">Toggle Theme</button>
+            <button class="back-btn" onclick="location.href='/'">Back to Dashboard</button>
+        </div>
+    </header>
+
+    <main>
+        <div class="input-section">
+            <h2>Enter URL or Source Code</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 1rem;">Extract all URLs from a website or paste HTML source code</p>
+
+            <div class="toggle-container">
+                <label class="toggle-label">
+                    <input type="radio" name="input-type" value="url" checked> URL
+                </label>
+                <label class="toggle-label">
+                    <input type="radio" name="input-type" value="source"> Source Code
+                </label>
+            </div>
+
+            <div id="url-input" class="input-container">
+                <input
+                    type="text"
+                    id="website-url"
+                    class="input-url"
+                    placeholder="Enter website URL (e.g., https://example.com)"
+                    aria-label="Website URL"
+                >
+                <button id="extract-url-btn" class="btn btn-primary">Extract URLs</button>
+            </div>
+
+            <div id="source-input" class="input-container hidden">
+                <textarea
+                    id="source-code"
+                    placeholder="Paste HTML source code here..."
+                    aria-label="HTML source code"
+                ></textarea>
+                <button id="extract-source-btn" class="btn btn-primary">Extract URLs</button>
+            </div>
+
+            <div class="toggle-container">
+                <label class="toggle-label">
+                    <input type="checkbox" id="use-proxy" checked> Use CORS proxy (recommended for cross-origin requests)
+                </label>
+            </div>
+        </div>
+
+        <div id="loader" class="loader" role="status" aria-label="Loading, please wait..."></div>
+        <div id="status-message" class="status-message"></div>
+
+        <div id="results-container" class="results-section hidden">
+            <div class="results-header">
+                <h3>Extracted URLs</h3>
+                <span class="results-count" id="url-count">0 URLs found</span>
+            </div>
+
+            <div class="controls">
+                <input
+                    type="text"
+                    id="filter-input"
+                    class="filter-input"
+                    placeholder="Filter URLs..."
+                    aria-label="Filter extracted URLs"
+                >
+                <button id="copy-all-btn" class="btn" aria-label="Copy all extracted URLs">Copy All</button>
+                <button id="download-btn" class="btn" aria-label="Download extracted URLs as text file">Download as TXT</button>
+            </div>
+
+            <ul id="results-list" class="results-list"></ul>
+        </div>
+    </main>
+
+    <script>
+        // Constantes
+        const SELECTORS = {
+            LOADER: '#loader',
+            STATUS_MESSAGE: '#status-message',
+            RESULTS_CONTAINER: '#results-container',
+            RESULTS_LIST: '#results-list',
+            URL_COUNT: '#url-count',
+            EXTRACT_URL_BTN: '#extract-url-btn',
+            EXTRACT_SOURCE_BTN: '#extract-source-btn',
+            WEBSITE_URL: '#website-url',
+            SOURCE_CODE: '#source-code',
+            FILTER_INPUT: '#filter-input',
+        };
+
+        const MESSAGES = {
+            INVALID_URL: 'Please enter a valid URL (e.g., https://example.com)',
+            INVALID_SOURCE: 'Please enter HTML source code',
+            FETCH_ERROR: 'Error fetching URL. Please check the URL or try again.',
+            CORS_ERROR: 'CORS issue detected. Try enabling the CORS proxy.',
+            NETWORK_ERROR: 'Network error. Please check your connection.',
+            COPY_SUCCESS: 'All URLs copied to clipboard',
+            NO_URLS: 'No URLs found',
+            FETCHING: 'Fetching page...',
+            EXTRACTING: 'Extracting URLs...',
+        };
+
+        // Utilidades
+        function isValidUrl(string) {
+            try {
+                new URL(string);
+                return true;
+            } catch {
+                return false;
+            }
+        }
+
+        function normalizeUrl(url) {
+            try {
+                const parsed = new URL(url);
+                parsed.searchParams.delete('utm_source');
+                parsed.searchParams.delete('utm_medium');
+                parsed.hash = '';
+                return parsed.toString().replace(/\/+$/, '');
+            } catch {
+                return url;
+            }
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function debounce(fn, ms) {
+            let timeout;
+            return (...args) => {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => fn(...args), ms);
+            };
+        }
+
+        // UI Functions
+        function showLoader(message = '') {
+            document.querySelector(SELECTORS.LOADER).style.display = 'block';
+            document.querySelector(SELECTORS.STATUS_MESSAGE).textContent = message;
+        }
+
+        function hideLoader() {
+            document.querySelector(SELECTORS.LOADER).style.display = 'none';
+            document.querySelector(SELECTORS.STATUS_MESSAGE).textContent = '';
+        }
+
+        function displayResults(urls) {
+            const resultsContainer = document.querySelector(SELECTORS.RESULTS_CONTAINER);
+            const resultsList = document.querySelector(SELECTORS.RESULTS_LIST);
+            const urlCount = document.querySelector(SELECTORS.URL_COUNT);
+
+            urlCount.textContent = `${urls.length} URLs found`;
+            resultsList.innerHTML = '';
+
+            if (urls.length > 0) {
+                urls.forEach(url => {
+                    const li = document.createElement('li');
+                    li.className = 'result-item';
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.target = '_blank';
+                    a.className = 'result-link';
+                    a.innerHTML = escapeHtml(url);
+                    li.appendChild(a);
+                    resultsList.appendChild(li);
+                });
+            } else {
+                const li = document.createElement('li');
+                li.className = 'result-item';
+                li.textContent = MESSAGES.NO_URLS;
+                resultsList.appendChild(li);
+            }
+
+            resultsContainer.classList.remove('hidden');
+            document.querySelector(SELECTORS.FILTER_INPUT).value = '';
+        }
+
+        // Extractor Functions
+        function extractUrls(html, baseUrl = '') {
+            const urls = new Set();
+            const urlAttrRegex = /(?:href|src|data-src|content)=["'](.*?)["']/gi;
+            const urlRegex = /https?:\/\/[^\s"'<>()]+/g;
+
+            let match;
+            while ((match = urlAttrRegex.exec(html)) !== null) {
+                if (
+                    match[1] &&
+                    !match[1].startsWith('#') &&
+                    !match[1].startsWith('javascript:') &&
+                    !match[1].startsWith('data:')
+                ) {
+                    let url = normalizeUrl(match[1]);
+                    if (baseUrl && !url.startsWith('http://') && !url.startsWith('https://')) {
+                        if (url.startsWith('/')) {
+                            const domain = baseUrl.split('/').slice(0, 3).join('/');
+                            url = domain + url;
+                        } else {
+                            url = baseUrl.replace(/\/[^\/]*$/, '/') + url;
+                        }
+                    }
+                    urls.add(url);
+                }
+            }
+
+            while ((match = urlRegex.exec(html)) !== null) {
+                urls.add(normalizeUrl(match[0]));
+            }
+
+            return [...urls];
+        }
+
+        async function extractUrlsFromWebsite(url) {
+            const extractBtn = document.querySelector(SELECTORS.EXTRACT_URL_BTN);
+            extractBtn.disabled = true;
+
+            if (!isValidUrl(url)) {
+                alert(MESSAGES.INVALID_URL);
+                extractBtn.disabled = false;
+                return;
+            }
+
+            showLoader(MESSAGES.FETCHING);
+            document.querySelector(SELECTORS.RESULTS_CONTAINER).classList.add('hidden');
+
+            try {
+                const useProxy = document.getElementById('use-proxy').checked;
+                const fetchUrl = useProxy
+                    ? `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`
+                    : url;
+
+                const response = await fetch(fetchUrl);
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+
+                showLoader(MESSAGES.EXTRACTING);
+                const html = await response.text();
+                const urls = extractUrls(html, url);
+                displayResults(urls);
+            } catch (error) {
+                console.error('Error fetching URL:', error);
+                let message = MESSAGES.FETCH_ERROR;
+                if (error.message.includes('network')) {
+                    message = MESSAGES.NETWORK_ERROR;
+                } else if (error.message.includes('CORS')) {
+                    message = MESSAGES.CORS_ERROR;
+                }
+                alert(message);
+            } finally {
+                hideLoader();
+                extractBtn.disabled = false;
+            }
+        }
+
+        function extractUrlsFromSource(sourceCode) {
+            const extractBtn = document.querySelector(SELECTORS.EXTRACT_SOURCE_BTN);
+            extractBtn.disabled = true;
+
+            if (!sourceCode) {
+                alert(MESSAGES.INVALID_SOURCE);
+                extractBtn.disabled = false;
+                return;
+            }
+
+            showLoader(MESSAGES.EXTRACTING);
+            document.querySelector(SELECTORS.RESULTS_CONTAINER).classList.add('hidden');
+
+            try {
+                const urls = extractUrls(sourceCode);
+                displayResults(urls);
+            } catch (error) {
+                console.error('Error processing source:', error);
+                alert(MESSAGES.FETCH_ERROR);
+            } finally {
+                hideLoader();
+                extractBtn.disabled = false;
+            }
+        }
+
+        // Event Listeners
+        document.querySelectorAll('input[name="input-type"]').forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                const urlInput = document.getElementById('url-input');
+                const sourceInput = document.getElementById('source-input');
+                urlInput.classList.toggle('hidden', e.target.value !== 'url');
+                sourceInput.classList.toggle('hidden', e.target.value !== 'source');
+            });
+        });
+
+        document.querySelector(SELECTORS.EXTRACT_URL_BTN).addEventListener('click', () => {
+            let url = document.querySelector(SELECTORS.WEBSITE_URL).value.trim();
+            if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                url = `https://${url}`;
+            }
+            extractUrlsFromWebsite(url);
+        });
+
+        document.querySelector(SELECTORS.WEBSITE_URL).addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                document.querySelector(SELECTORS.EXTRACT_URL_BTN).click();
+            }
+        });
+
+        document.querySelector(SELECTORS.EXTRACT_SOURCE_BTN).addEventListener('click', () => {
+            const sourceCode = document.querySelector(SELECTORS.SOURCE_CODE).value.trim();
+            extractUrlsFromSource(sourceCode);
+        });
+
+        document.getElementById('copy-all-btn').addEventListener('click', async () => {
+            const resultItems = document.querySelectorAll('.result-link');
+            if (resultItems.length === 0) return;
+
+            const urls = Array.from(resultItems).map(item => item.textContent).join('\n');
+            try {
+                await navigator.clipboard.writeText(urls);
+                alert(MESSAGES.COPY_SUCCESS);
+                document.getElementById('copy-all-btn').focus();
+            } catch (err) {
+                console.error('Failed to copy:', err);
+            }
+        });
+
+        document.getElementById('download-btn').addEventListener('click', () => {
+            const resultItems = document.querySelectorAll('.result-link');
+            if (resultItems.length === 0) return;
+
+            const urls = Array.from(resultItems).map(item => item.textContent).join('\n');
+            const blob = new Blob([urls], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'extracted_urls.txt';
+            a.click();
+
+            URL.revokeObjectURL(url);
+            document.getElementById('download-btn').focus();
+        });
+
+        document.querySelector(SELECTORS.FILTER_INPUT).addEventListener('input', debounce((e) => {
+            const filter = e.target.value.toLowerCase();
+            const items = document.querySelectorAll('.result-item');
+            items.forEach(item => {
+                const url = item.textContent.toLowerCase();
+                item.style.display = url.includes(filter) ? '' : 'none';
+            });
+        }, 300));
+
+        document.querySelector('.theme-toggle').addEventListener('click', () => {
+            document.body.classList.toggle('light-theme');
+            localStorage.setItem('theme', document.body.classList.contains('light-theme') ? 'light' : 'dark');
+        });
+
+        // Cargar tema guardado
+        if (localStorage.getItem('theme') === 'light') {
+            document.body.classList.add('light-theme');
+        }
+    </script>
+</body>
+</html>

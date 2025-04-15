@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bloc de Notas</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-color: #0f1215;
+            color: #ffffff;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        
+        .navbar {
+            display: flex;
+            align-items: center;
+            background-color: #1c1f26;
+            padding: 15px 20px;
+            border-bottom: 1px solid #2d3238;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+        
+        .logo {
+            color: #4a9ced;
+            font-size: 28px;
+            font-weight: bold;
+            margin-right: 15px;
+            transition: color 0.3s;
+        }
+        
+        .navbar-icon {
+            color: #ffffff;
+            font-size: 24px;
+            margin: 0 15px;
+            cursor: pointer;
+            transition: color 0.3s, transform 0.2s;
+        }
+        
+        .navbar-icon:hover {
+            transform: scale(1.1);
+        }
+        
+        .dropdown-icon::after {
+            content: "▼";
+            font-size: 12px;
+            margin-left: 8px;
+        }
+        
+        .spacer {
+            flex-grow: 1;
+        }
+        
+        .menu-button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 18px;
+            width: 30px;
+            padding: 0;
+        }
+        
+        .menu-line {
+            width: 100%;
+            height: 3px;
+            background-color: white;
+            border-radius: 3px;
+            transition: background-color 0.3s;
+        }
+        
+        .editor {
+            flex-grow: 1;
+            padding: 20px;
+            position: relative;
+        }
+        
+        #notepad {
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            border: none;
+            color: #cccccc;
+            font-size: 18px;
+            line-height: 1.6;
+            resize: none;
+            outline: none;
+            transition: color 0.3s, font-size 0.3s;
+        }
+        
+        .placeholder {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: #555;
+            pointer-events: none;
+            font-size: 18px;
+            line-height: 1.6;
+        }
+        
+        .counter {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: rgba(143, 123, 184, 0.8);
+            color: #fff;
+            padding: 8px 15px;
+            border-radius: 50px;
+            font-size: 14px;
+            z-index: 100;
+        }
+        
+        /* Notificación */
+        .notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background-color: rgba(74, 156, 237, 0.9);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            z-index: 1000;
+            opacity: 0;
+            transition: transform 0.3s, opacity 0.3s;
+        }
+        
+        .notification.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+        
+        /* Menú desplegable */
+        .dropdown-menu {
+            position: absolute;
+            background-color: #2a2e38;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            overflow: hidden;
+            min-width: 180px;
+        }
+        
+        .menu-item {
+            padding: 12px 16px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .menu-item:hover {
+            background-color: #3a3f4b;
+        }
+        
+        /* Menú móvil panel */
+        .mobile-menu-panel {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 80%;
+            max-width: 300px;
+            height: 100vh;
+            background-color: #1c1f26;
+            z-index: 2000;
+            box-shadow: -5px 0 15px rgba(0, 0, 0, 0.3);
+            transform: translateX(0);
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+        }
+        
+        .menu-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid #2d3238;
+        }
+        
+        .close-menu {
+            font-size: 28px;
+            cursor: pointer;
+        }
+        
+        .menu-items {
+            padding: 10px 0;
+        }
+        
+        /* Modal de configuración */
+        .settings-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1500;
+        }
+        
+        .settings-content {
+            background-color: #2a2e38;
+            border-radius: 8px;
+            padding: 24px;
+            width: 90%;
+            max-width: 400px;
+        }
+        
+        .settings-content h3 {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .setting-option {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .setting-option select {
+            background-color: #1c1f26;
+            color: white;
+            border: 1px solid #3a3f4b;
+            padding: 8px 12px;
+            border-radius: 4px;
+            width: 50%;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .modal-buttons button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        #save-settings {
+            background-color: #4a9ced;
+            color: white;
+        }
+        
+        #cancel-settings {
+            background-color: transparent;
+            border: 1px solid #4a9ced;
+            color: #4a9ced;
+        }
+        
+        /* Responsive styles */
+        @media (max-width: 768px) {
+            .navbar-icon {
+                margin: 0 10px;
+            }
+            
+            .navbar {
+                padding: 10px 15px;
+            }
+            
+            /* Ocultar algunos iconos en pantallas medianas */
+            #settings-button, #menu-toggle {
+                display: none;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .navbar-icon {
+                margin: 0 8px;
+            }
+            
+            .logo {
+                font-size: 24px;
+            }
+            
+            /* Ocultar más iconos en pantallas pequeñas */
+            #share-button {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <div class="logo">Bloc</div>
+        <div class="dropdown-icon navbar-icon" id="dropdown-menu">&#9662;</div>
+        <div class="navbar-icon" id="delete-button" title="Borrar nota">&#128465;</div>
+        <div class="navbar-icon" id="refresh-button" title="Recargar">&#8635;</div>
+        <div class="navbar-icon" id="copy-button" title="Copiar al portapapeles">&#9114;</div>
+        <div class="navbar-icon" id="settings-button" title="Configuración">&#9881;</div>
+        <div class="navbar-icon" id="share-button" title="Compartir">&#9834;</div>
+        <div class="navbar-icon" id="menu-toggle" title="Menú">&#9776;</div>
+        <div class="spacer"></div>
+        <button class="menu-button" id="mobile-menu">
+            <div class="menu-line"></div>
+            <div class="menu-line"></div>
+            <div class="menu-line"></div>
+        </button>
+    </div>
+    
+    <div class="editor">
+        <textarea id="notepad" autofocus></textarea>
+        <div class="placeholder">Escribe tus notas aquí y cuando regreses todas tus notas estarán aquí...</div>
+        <div class="counter">0 caracteres, 0 palabras</div>
+    </div>
+    
+    <script>
+        const notepad = document.getElementById('notepad');
+        const placeholder = document.querySelector('.placeholder');
+        const counter = document.querySelector('.counter');
+        
+        // Elementos de navegación
+        const deleteButton = document.getElementById('delete-button');
+        const refreshButton = document.getElementById('refresh-button');
+        const copyButton = document.getElementById('copy-button');
+        const settingsButton = document.getElementById('settings-button');
+        const shareButton = document.getElementById('share-button');
+        const menuToggle = document.getElementById('menu-toggle');
+        const dropdownMenu = document.getElementById('dropdown-menu');
+        const mobileMenu = document.getElementById('mobile-menu');
+        
+        // Funcionalidad de actualización de placeholder y contador
+        notepad.addEventListener('input', function() {
+            // Ocultar o mostrar el placeholder
+            if (this.value.length > 0) {
+                placeholder.style.display = 'none';
+            } else {
+                placeholder.style.display = 'block';
+            }
+            
+            // Actualizar contador
+            const charCount = this.value.length;
+            const wordCount = this.value.trim() === '' ? 0 : this.value.trim().split(/\s+/).length;
+            
+            counter.textContent = `${charCount} caracteres, ${wordCount} palabras`;
+            
+            // Guardar contenido automáticamente
+            localStorage.setItem('notepadContent', this.value);
+        });
+        
+        // Función para mostrar notificación
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.classList.add('show');
+            }, 10);
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    notification.remove();
+                }, 300);
+            }, 2000);
+        }
+        
+        // Funcionalidad de los botones
+        
+        // Borrar nota
+        deleteButton.addEventListener('click', function() {
+            if (notepad.value.trim() !== '' && confirm('¿Estás seguro de que quieres borrar esta nota?')) {
+                notepad.value = '';
+                localStorage.removeItem('notepadContent');
+                placeholder.style.display = 'block';
+                counter.textContent = '0 caracteres, 0 palabras';
+                showNotification('Nota eliminada');
+            }
+        });
+        
+        // Recargar/Refrescar
+        refreshButton.addEventListener('click', function() {
+            const savedContent = localStorage.getItem('notepadContent');
+            if (savedContent && confirm('¿Quieres recargar la última versión guardada? Se perderán los cambios no guardados.')) {
+                notepad.value = savedContent;
+                notepad.dispatchEvent(new Event('input'));
+                showNotification('Nota recargada');
+            }
+        });
+        
+        // Copiar al portapapeles
+        copyButton.addEventListener('click', function() {
+            if (notepad.value.trim() !== '') {
+                notepad.select();
+                document.execCommand('copy');
+                // Deseleccionar después de copiar
+                window.getSelection().removeAllRanges();
+                showNotification('Texto copiado al portapapeles');
+            }
+        });
+        
+        // Configuración
+        settingsButton.addEventListener('click', function() {
+            const themeOptions = document.createElement('div');
+            themeOptions.className = 'settings-modal';
+            themeOptions.innerHTML = `
+                <div class="settings-content">
+                    <h3>Configuración</h3>
+                    <div class="setting-option">
+                        <label for="theme-select">Tema:</label>
+                        <select id="theme-select">
+                            <option value="dark" ${localStorage.getItem('theme') === 'dark' || !localStorage.getItem('theme') ? 'selected' : ''}>Oscuro</option>
+                            <option value="light" ${localStorage.getItem('theme') === 'light' ? 'selected' : ''}>Claro</option>
+                        </select>
+                    </div>
+                    <div class="setting-option">
+                        <label for="font-size">Tamaño de letra:</label>
+                        <select id="font-size">
+                            <option value="14px" ${localStorage.getItem('fontSize') === '14px' ? 'selected' : ''}>Pequeño</option>
+                            <option value="18px" ${!localStorage.getItem('fontSize') || localStorage.getItem('fontSize') === '18px' ? 'selected' : ''}>Normal</option>
+                            <option value="22px" ${localStorage.getItem('fontSize') === '22px' ? 'selected' : ''}>Grande</option>
+                        </select>
+                    </div>
+                    <div class="modal-buttons">
+                        <button id="save-settings">Guardar</button>
+                        <button id="cancel-settings">Cancelar</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(themeOptions);
+            
+            document.getElementById('save-settings').addEventListener('click', function() {
+                const selectedTheme = document.getElementById('theme-select').value;
+                const selectedFontSize = document.getElementById('font-size').value;
+                
+                // Guardar preferencias
+                localStorage.setItem('theme', selectedTheme);
+                localStorage.setItem('fontSize', selectedFontSize);
+                
+                // Aplicar cambios
+                applyTheme(selectedTheme);
+                notepad.style.fontSize = selectedFontSize;
+                
+                // Cerrar modal
+                themeOptions.remove();
+                showNotification('Configuración guardada');
+            });
+            
+            document.getElementById('cancel-settings').addEventListener('click', function() {
+                themeOptions.remove();
+            });
+        });
+        
+        // Función para aplicar tema
+        function applyTheme(theme) {
+            if (theme === 'light') {
+                document.body.style.backgroundColor = '#f5f5f5';
+                document.body.style.color = '#333';
+                notepad.style.color = '#333';
+                document.querySelector('.navbar').style.backgroundColor = '#e0e0e0';
+                document.querySelector('.navbar').style.borderBottom = '1px solid #ccc';
+                const icons = document.querySelectorAll('.navbar-icon');
+                icons.forEach(icon => {
+                    icon.style.color = '#333';
+                });
+                document.querySelector('.logo').style.color = '#2c78c5';
+            } else {
+                document.body.style.backgroundColor = '#0f1215';
+                document.body.style.color = '#ffffff';
+                notepad.style.color = '#cccccc';
+                document.querySelector('.navbar').style.backgroundColor = '#1c1f26';
+                document.querySelector('.navbar').style.borderBottom = '1px solid #2d3238';
+                const icons = document.querySelectorAll('.navbar-icon');
+                icons.forEach(icon => {
+                    icon.style.color = '#ffffff';
+                });
+                document.querySelector('.logo').style.color = '#4a9ced';
+            }
+        }
+        
+        // Compartir
+        shareButton.addEventListener('click', function() {
+            if (notepad.value.trim() !== '') {
+                if (navigator.share) {
+                    navigator.share({
+                        title: 'Mi nota',
+                        text: notepad.value
+                    })
+                    .then(() => showNotification('Compartido con éxito'))
+                    .catch(err => console.error('Error al compartir:', err));
+                } else {
+                    // Fallback para navegadores que no soportan Web Share API
+                    copyButton.click();
+                }
+            }
+        });
+        
+        // Menú desplegable
+        dropdownMenu.addEventListener('click', function() {
+            const menu = document.createElement('div');
+            menu.className = 'dropdown-menu';
+            menu.innerHTML = `
+                <div class="menu-item" id="new-note">Nueva nota</div>
+                <div class="menu-item" id="export-note">Exportar como TXT</div>
+                <div class="menu-item" id="print-note">Imprimir</div>
+            `;
+            
+            // Posicionar el menú
+            const rect = this.getBoundingClientRect();
+            menu.style.position = 'absolute';
+            menu.style.top = (rect.bottom + 5) + 'px';
+            menu.style.left = rect.left + 'px';
+            
+            document.body.appendChild(menu);
+            
+            // Cerrar al hacer clic fuera
+            document.addEventListener('click', function closeMenu(e) {
+                if (!menu.contains(e.target) && e.target !== dropdownMenu) {
+                    menu.remove();
+                    document.removeEventListener('click', closeMenu);
+                }
+            });
+            
+            // Funcionalidad de los elementos del menú
+            document.getElementById('new-note').addEventListener('click', function() {
+                if (notepad.value.trim() !== '' && confirm('¿Crear nueva nota? La nota actual se guardará.')) {
+                    // Guardar la nota actual con timestamp
+                    const timestamp = new Date().toISOString();
+                    localStorage.setItem('notepad_backup_' + timestamp, notepad.value);
+                    
+                    // Limpiar el área de notas
+                    notepad.value = '';
+                    notepad.dispatchEvent(new Event('input'));
+                    showNotification('Nueva nota creada');
+                }
+                menu.remove();
+            });
+            
+            document.getElementById('export-note').addEventListener('click', function() {
+                if (notepad.value.trim() !== '') {
+                    const blob = new Blob([notepad.value], {type: 'text/plain'});
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'nota_' + new Date().toLocaleDateString().replace(/\//g, '-') + '.txt';
+                    a.click();
+                    URL.revokeObjectURL(url);
+                    showNotification('Nota exportada como TXT');
+                }
+                menu.remove();
+            });
+            
+            document.getElementById('print-note').addEventListener('click', function() {
+                if (notepad.value.trim() !== '') {
+                    const printWindow = window.open('', '_blank');
+                    printWindow.document.write(`
+                        <html>
+                        <head>
+                            <title>Imprimir Nota</title>
+                            <style>
+                                body {
+                                    font-family: Arial, sans-serif;
+                                    line-height: 1.6;
+                                    margin: 20px;
+                                    white-space: pre-wrap;
+                                }
+                            </style>
+                        </head>
+                        <body>${notepad.value}</body>
+                        </html>
+                    `);
+                    printWindow.document.close();
+                    printWindow.print();
+                    showNotification('Enviado a imprimir');
+                }
+                menu.remove();
+            });
+        });
+        
+        // Menú móvil
+        menuToggle.addEventListener('click', function() {
+            const mobileMenuEl = document.createElement('div');
+            mobileMenuEl.className = 'mobile-menu-panel';
+            mobileMenuEl.innerHTML = `
+                <div class="menu-header">
+                    <h3>Menú</h3>
+                    <span class="close-menu">&times;</span>
+                </div>
+                <div class="menu-items">
+                    <div class="menu-item">Nueva nota</div>
+                    <div class="menu-item">Exportar como TXT</div>
+                    <div class="menu-item">Configuración</div>
+                    <div class="menu-item">Ayuda</div>
+                </div>
+            `;
+            
+            document.body.appendChild(mobileMenuEl);
+            
+            mobileMenuEl.querySelector('.close-menu').addEventListener('click', function() {
+                mobileMenuEl.remove();
+            });
+        });
+        
+        mobileMenu.addEventListener('click', function() {
+            menuToggle.click();
+        });
+        
+        // Cargar contenido guardado al iniciar
+        window.addEventListener('load', function() {
+            const savedContent = localStorage.getItem('notepadContent');
+            if (savedContent) {
+                notepad.value = savedContent;
+                notepad.dispatchEvent(new Event('input'));
+            }
+            
+            // Aplicar tema guardado
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            applyTheme(savedTheme);
+            
+            // Aplicar tamaño de fuente guardado
+            const savedFontSize = localStorage.getItem('fontSize') || '18px';
+            notepad.style.fontSize = savedFontSize;
+        });
+    </script>
+</body>
+</html>

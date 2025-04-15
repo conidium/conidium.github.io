@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Visualizador de Código HTML</title>
+  <style>
+    body {
+      background-color: #121212;
+      color: #e0e0e0;
+      font-family: Arial, sans-serif;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .button {
+      background-color: #333;
+      color: white;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin: 4px;
+    }
+    .textarea {
+      width: 100%;
+      min-height: 200px;
+      background-color: #1e1e1e;
+      color: #e0e0e0;
+      border: 1px solid #333;
+      padding: 8px;
+      font-family: monospace;
+    }
+    .preview {
+      border: 1px solid #333;
+      padding: 16px;
+      background-color: #1e1e1e;
+      min-height: 300px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Visualizador de Código HTML</h1>
+    
+    <div>
+      <button class="button" onclick="pasteCode()">Pegar</button>
+      <button class="button" onclick="copyCode()">Copiar</button>
+      <button class="button" onclick="cutCode()">Cortar</button>
+      <button class="button" onclick="clearEditor()">Borrar</button>
+      <button class="button" onclick="downloadCode()">Descargar</button>
+    </div>
+    
+    <textarea id="codeInput" class="textarea" placeholder="Pega o escribe tu código HTML aquí..."></textarea>
+    
+    <button class="button" onclick="renderHTML()">Visualizar HTML</button>
+    
+    <h2>Vista previa:</h2>
+    <div id="preview" class="preview">La vista previa aparecerá aquí</div>
+  </div>
+
+  <script>
+    function pasteCode() {
+      navigator.clipboard.readText().then(text => {
+        document.getElementById("codeInput").value = text;
+      }).catch(() => alert("No se pudo pegar desde el portapapeles"));
+    }
+
+    function copyCode() {
+      const text = document.getElementById("codeInput").value;
+      if (text) {
+        navigator.clipboard.writeText(text);
+      } else {
+        alert("No hay código para copiar");
+      }
+    }
+
+    function cutCode() {
+      const input = document.getElementById("codeInput");
+      if (input.value) {
+        navigator.clipboard.writeText(input.value);
+        input.value = "";
+      } else {
+        alert("No hay código para cortar");
+      }
+    }
+
+    function clearEditor() {
+      document.getElementById("codeInput").value = "";
+    }
+
+    function downloadCode() {
+      const code = document.getElementById("codeInput").value;
+      if (code) {
+        const blob = new Blob([code], { type: "text/html" });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = "codigo.html";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      } else {
+        alert("No hay código para descargar");
+      }
+    }
+
+    function renderHTML() {
+      const code = document.getElementById("codeInput").value;
+      document.getElementById("preview").innerHTML = code || "La vista previa aparecerá aquí";
+    }
+  </script>
+</body>
+</html>

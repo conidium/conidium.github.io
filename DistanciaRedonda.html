@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Calculadora de Distancia</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
+    <style>
+        #map {
+            height: 300px;
+            width: 100%;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .coordinates {
+            background-color: #e8f5e9;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Calculadora de Distancia</h1>
+        
+        <div class="coordinates">
+            <p>Tu ubicación actual es:</p>
+            <p>Latitud: <span id="lat">19.566688</span></p>
+            <p>Longitud: <span id="lng">-96.909787</span></p>
+            <p>Precisión: ±14.0 metros</p>
+        </div>
+
+        <div class="form-group">
+            <label for="distance">Distancia:</label>
+            <input type="number" id="distance" value="1">
+        </div>
+
+        <div class="form-group">
+            <label for="unit">Unidad:</label>
+            <select id="unit">
+                <option value="millas">Millas</option>
+            </select>
+        </div>
+
+        <button class="btn" onclick="verificarPermisos()">Verificar Permisos</button>
+        <button class="btn" onclick="obtenerUbicacion()">Obtener Mi Ubicación</button>
+
+        <div id="map"></div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+    <script>
+        let map = null;
+        let circle = null;
+
+        function initMap() {
+            const lat = parseFloat(document.getElementById('lat').textContent);
+            const lng = parseFloat(document.getElementById('lng').textContent);
+            
+            map = L.map('map').setView([lat, lng], 13);
+            
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+
+            const marker = L.marker([lat, lng]).addTo(map);
+            
+            circle = L.circle([lat, lng], {
+                color: '#4CAF50',
+                fillColor: '#4CAF50',
+                fillOpacity: 0.2,
+                radius: 1609.34  // 1 mile in meters
+            }).addTo(map);
+        }
+
+        function updateCircle() {
+            const distance = document.getElementById('distance').value;
+            const radius = distance * 1609.34;  // Convert miles to meters
+            if (circle) {
+                circle.setRadius(radius);
+            }
+        }
+
+        document.getElementById('distance').addEventListener('input', updateCircle);
+
+        // Initialize map when page loads
+        window.onload = initMap;
+    </script>
+</body>
+</html>

@@ -1,0 +1,163 @@
+[
+    {
+        "name": "Code Formatter",
+        "icon": "fas fa-code",
+        "description": "Formatea y organiza código para mejor legibilidad.",
+        "url": "CodeFormatter.html",
+        "category": "Herramientas"
+    },
+    {
+        "name": "Color Igual",
+        "icon": "fas fa-paint-brush",
+        "description": "Encuentra colores similares y crea combinaciones.",
+        "url": "Colorigual.html",
+        "category": "Diseño"
+    },
+    {
+        "name": "Cut Madera",
+        "icon": "fas fa-cut",
+        "description": "Calcula cortes óptimos para piezas de madera.",
+        "url": "CutMadera.HTML",
+        "category": "Herramientas"
+    },
+    {
+        "name": "Desglosa HTML",
+        "icon": "fas fa-sitemap",
+        "description": "Analiza y desglosa la estructura de documentos HTML.",
+        "url": "Desglosahtml.html",
+        "category": "Herramientas"
+    },
+    {
+        "name": "Distancia Redonda",
+        "icon": "fas fa-ruler",
+        "description": "Calcula distancias en superficies redondas o curvas.",
+        "url": "DistanciaRedonda.html",
+        "category": "Herramientas"
+    },
+    {
+        "name": "Formatt HTML",
+        "icon": "fas fa-file-code",
+        "description": "Herramienta para formatear y dar estructura a código HTML.",
+        "url": "FormattHTML.html",
+        "category": "Herramientas"
+    },
+    {
+        "name": "NotePad",
+        "icon": "fas fa-sticky-note",
+        "description": "Editor de notas simple y funcional.",
+        "url": "NotePad.html",
+        "category": "Productividad"
+    },
+    {
+        "name": "Organizer Task",
+        "icon": "fas fa-tasks",
+        "description": "Organiza y gestiona tus tareas diarias.",
+        "url": "OrganizerTask.html",
+        "category": "Productividad"
+    },
+    {
+        "name": "Pronto 1",
+        "icon": "fas fa-clock",
+        "description": "Temporizador y recordatorio para tareas.",
+        "url": "Pronto1.html",
+        "category": "Productividad"
+    },
+    {
+        "name": "Pronto 2",
+        "icon": "fas fa-clock",
+        "description": "Versión avanzada del temporizador y recordatorio.",
+        "url": "Pronto2.html",
+        "category": "Productividad"
+    },
+    {
+        "name": "Select URLs",
+        "icon": "fas fa-link",
+        "description": "Herramienta para extraer y organizar URLs.",
+        "url": "SelectURLs.HTML",
+        "category": "Herramientas"
+    },
+    {
+        "name": "Video Scrap",
+        "icon": "fas fa-video",
+        "description": "Extrae información de videos en páginas web.",
+        "url": "VideoScrap.html",
+        "category": "Multimedia"
+    },
+    {
+        "name": "Videos URL txt",
+        "icon": "fas fa-file-video",
+        "description": "Convierte listas de videos en formato texto.",
+        "url": "VideosURLtxt.html",
+        "category": "Multimedia"
+    },
+    {
+        "name": "Visualizador HTML",
+        "icon": "fas fa-eye",
+        "description": "Visualiza y previsualiza código HTML.",
+        "url": "VisualizadorHtml.html",
+        "category": "Herramientas"
+    },
+    {
+        "name": "Color Palette Generator",
+        "icon": "fas fa-palette",
+        "description": "Genera paletas de colores armoniosas.",
+        "url": "colorpalettegenerator.html",
+        "category": "Diseño"
+    },
+    {
+        "name": "CSV Organizer",
+        "icon": "fas fa-table",
+        "description": "Organiza y gestiona archivos CSV.",
+        "url": "csvOrganizer.html",
+        "category": "Herramientas"
+    },
+    {
+        "name": "Estructura App",
+        "icon": "fas fa-th-large",
+        "description": "Creador de estructura para aplicaciones.",
+        "url": "estructurapp.html",
+        "category": "Herramientas"
+    },
+    {
+        "name": "HTML Compiler",
+        "icon": "fas fa-code",
+        "description": "Compila múltiples archivos HTML en uno solo.",
+        "url": "htmlcompiler.html",
+        "category": "Herramientas"
+    },
+    {
+        "name": "JSON Formatter",
+        "icon": "fas fa-code",
+        "description": "Formatea y valida código JSON.",
+        "url": "jsonformatter.html",
+        "category": "Herramientas"
+    },
+    {
+        "name": "Media Finder",
+        "icon": "fas fa-photo-video",
+        "description": "Encuentra archivos multimedia en páginas web.",
+        "url": "media-finder.html",
+        "category": "Multimedia"
+    },
+    {
+        "name": "PDFs",
+        "icon": "fas fa-file-pdf",
+        "description": "Herramienta para trabajar con archivos PDF.",
+        "url": "pdfs.html",
+        "category": "Otros"
+    },
+    {
+        "name": "Presupuestos",
+        "icon": "fas fa-calculator",
+        "description": "Crea y gestiona presupuestos personales o comerciales.",
+        "url": "presupuestos.html",
+        "category": "Productividad"
+    },
+    {
+        "name": "URL Extract",
+        "icon": "fas fa-globe",
+        "description": "Extrae URLs de páginas web de forma rápida.",
+        "url": "urlextract.html",
+        "category": "Herramientas"
+    }
+]

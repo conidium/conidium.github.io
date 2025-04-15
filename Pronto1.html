@@ -1,0 +1,159 @@
+<meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Despiece de Paneles</title>
+    <!-- Importar Tailwind desde CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        /* Estilos base con fondo gris oscuro y texto amarillo canario */
+        body {
+            background-color: #1a1a1a; /* Gris oscuro para el fondo */
+            color: #ffeb3b; /* Amarillo canario para el texto */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .max-w-4xl {
+            background-color: #333; /* Gris más claro para el contenedor */
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Estilos para títulos */
+        h1, h2, h3 {
+            color: #ffeb3b; /* Amarillo canario para títulos */
+        }
+
+        /* Estilos para formularios */
+        input, select {
+            background-color: #2a2a2a;
+            color: #ffeb3b;
+            border: 1px solid #555;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #ffeb3b;
+            box-shadow: 0 0 0 2px rgba(255, 235, 59, 0.3);
+        }
+
+        /* Estilos para botones */
+        button {
+            background-color: #ffeb3b !important;
+            color: #222 !important;
+            font-weight: bold;
+            transition: all 0.2s ease;
+        }
+
+        button:hover {
+            background-color: #fff176 !important;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        button:active {
+            transform: translateY(0);
+            box-shadow: none;
+        }
+
+        .bg-blue-500 {
+            background-color: #2196f3 !important;
+            color: white !important;
+        }
+
+        .bg-green-500 {
+            background-color: #4caf50 !important;
+            color: white !important;
+        }
+
+        .bg-gray-500 {
+            background-color: #757575 !important;
+            color: white !important;
+        }
+
+        /* Estilos para la tabla */
+        table {
+            background-color: #2a2a2a;
+        }
+
+        th {
+            background-color: #333;
+            color: #ffeb3b;
+        }
+
+        td {
+            border-color: #444 !important;
+        }
+
+        tr:nth-child(even) td {
+            background-color: #3a3a3a;
+        }
+
+        /* Estilos para visualización */
+        .bg-gray-100 {
+            background-color: #2a2a2a !important;
+            color: #ffeb3b;
+        }
+
+        /* Footer */
+        footer {
+            color: #999;
+        }
+    </style>
+</head>
+<body class="p-4">
+    <div class="max-w-4xl mx-auto p-6 rounded shadow">
+        <h1 class="text-2xl font-bold mb-4">Despiece de Paneles</h1>
+        <p class="mb-6">Optimiza el corte de paneles para reducir el desperdicio de material.</p>
+
+        <div class="mb-6">
+            <h2 class="text-xl font-semibold mb-2">Datos de Entrada</h2>
+            <div class="mb-4">
+                <label class="block font-semibold mb-1">Tamaño del Panel Estándar:</label>
+                <select id="tamanoPanel" class="rounded p-2 w-full">
+                    <option value="2440 x 1220">2440 x 1220 mm</option>
+                    <option value="1830 x 1220">1830 x 1220 mm</option>
+                    <option value="2750 x 1220">2750 x 1220 mm</option>
+                </select>
+            </div>
+            <div class="mb-4">
+                <label class="block font-semibold mb-1">Espesor del material (mm):</label>
+                <input type="number" id="espesorMaterial" class="rounded p-2 w-full" value="18">
+            </div>
+            <div class="mb-4">
+                <label class="block font-semibold mb-1">Ancho del corte (mm):</label>
+                <input type="number" id="anchoCorteSierra" class="rounded p-2 w-full" value="3">
+            </div>
+        </div>
+
+        <div class="mb-6">
+            <h2 class="text-xl font-semibold mb-2">Piezas Requeridas:</h2>
+            <div class="mb-4">
+                <label class="block font-semibold mb-1">Ancho (mm):</label>
+                <input type="number" id="anchoPieza" class="rounded p-2 w-full" value="800">
+            </div>
+            <div class="mb-4">
+                <label class="block font-semibold mb-1">Alto (mm):</label>
+                <input type="number" id="altoPieza" class="rounded p-2 w-full" value="600">
+            </div>
+            <div class="mb-4">
+                <label class="block font-semibold mb-1">Cantidad:</label>
+                <input type="number" id="cantidadPiezas" class="rounded p-2 w-full" value="2">
+            </div>
+            <button id="btnAnadirPieza" class="bg-blue-500 px-4 py-2 rounded">Añadir Pieza</button>
+        </div>
+
+        <div class="mb-6">
+            <h2 class="text-xl font-semibold mb-2">Lista de Piezas:</h2>
+            <div id="listaPiezas" class="bg-gray-100 p-4 rounded mb-4">
+                No hay piezas añadidas
+            </div>
+        </div>
+
+        <div class="mb-6">
+            <button id="btnCalcular" class="bg-green-500 px-4 py-2 rounded">Calcular Despiece</button>
+            <button id="btnReiniciar" class="bg-gray-500 px-4 py-2 rounded">Reiniciar</button>

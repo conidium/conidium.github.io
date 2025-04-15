@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style></style>
+</head>
+<body>
+    <!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reproductor de vídeos desde TXT</title>
+</head>
+<body>
+    <h1>Reproductor de vídeos</h1>
+
+    <input type="file" id="fileInput" accept=".txt" />
+    <div id="videoContainer"></div>
+
+    <script>
+        document.getElementById('fileInput').addEventListener('change', handleFileSelect);
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file && file.name.endsWith('.txt')) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const urls = e.target.result.split('\n').map(url => url.trim()).filter(url => url);
+                    displayVideos(urls);
+                };
+                reader.readAsText(file);
+            } else {
+                alert("Por favor, selecciona un archivo .txt.");
+            }
+        }
+
+        function displayVideos(urls) {
+            const videoContainer = document.getElementById('videoContainer');
+            videoContainer.innerHTML = ''; // Limpiar el contenedor de vídeos
+
+            urls.forEach(url => {
+                const videoElement = document.createElement('video');
+                videoElement.setAttribute('controls', 'true');
+                videoElement.setAttribute('width', '640');
+                videoElement.setAttribute('height', '360');
+                videoElement.innerHTML = `<source src="${url}" type="video/mp4">Tu navegador no soporta el elemento de video.`;
+                videoContainer.appendChild(videoElement);
+                videoElement.load(); // Cargar el vídeo
+            });
+        }
+    </script>
+</body>
+</html>
+    <script></script>
+</body>
+</html>

@@ -1,0 +1,537 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JSON Formatter - Multi Toolkit Dashboard</title>
+  <style>
+    :root {
+      --background: #1A1F2C;
+      --foreground: #ffffff;
+      --card: #232836;
+      --card-hover: #2c324a;
+      --border: #333948;
+      --primary: #9b87f5;
+      --muted: #8E9196;
+      --success: #4ade80;
+      --error: #f87171;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      background-color: var(--background);
+      color: var(--foreground);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+    
+    header {
+      padding: 1.5rem 1rem;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      backdrop-filter: blur(10px);
+      background-color: rgba(26, 31, 44, 0.8);
+      z-index: 10;
+    }
+    
+    .header-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .back-button {
+      display: inline-flex;
+      align-items: center;
+      font-size: 0.875rem;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    
+    .back-button:hover {
+      color: var(--foreground);
+    }
+    
+    .back-button svg {
+      width: 16px;
+      height: 16px;
+      margin-right: 0.5rem;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+    }
+    
+    .app-header {
+      margin-bottom: 2rem;
+    }
+    
+    .app-header h1 {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .app-header p {
+      color: var(--muted);
+    }
+    
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background-color: var(--card);
+      color: var(--foreground);
+      border: 1px solid var(--border);
+      border-radius: 0.375rem;
+      padding: 0.5rem 1rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s, border-color 0.2s;
+      white-space: nowrap;
+    }
+    
+    .btn:hover {
+      background-color: var(--card-hover);
+    }
+    
+    .btn-primary {
+      background-color: var(--primary);
+      color: var(--background);
+      border-color: var(--primary);
+    }
+    
+    .btn-primary:hover {
+      background-color: #8671e0;
+      border-color: #8671e0;
+    }
+    
+    .btn svg {
+      width: 16px;
+      height: 16px;
+      margin-right: 0.5rem;
+    }
+    
+    .btn-sm {
+      padding: 0.25rem 0.5rem;
+      font-size: 0.75rem;
+    }
+    
+    .hidden {
+      display: none;
+    }
+    
+    .grid-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+    
+    .code-container {
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .section-header {
+      font-size: 1.25rem;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .section-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+    
+    .code-editor {
+      width: 100%;
+      height: 400px;
+      background-color: var(--card);
+      color: var(--foreground);
+      border: 1px solid var(--border);
+      border-radius: 0.375rem;
+      padding: 1rem;
+      font-family: 'Courier New', Courier, monospace;
+      resize: vertical;
+      line-height: 1.5;
+      font-size: 0.875rem;
+    }
+    
+    .error-container {
+      width: 100%;
+      height: 400px;
+      background-color: rgba(248, 113, 113, 0.1);
+      border: 1px solid rgba(248, 113, 113, 0.2);
+      border-radius: 0.375rem;
+      padding: 1rem;
+      color: var(--error);
+      font-family: 'Courier New', Courier, monospace;
+      overflow: auto;
+    }
+    
+    .alert {
+      padding: 0.75rem 1rem;
+      border-radius: 0.375rem;
+      margin-bottom: 1rem;
+      animation: fadeIn 0.3s ease-out;
+    }
+    
+    .alert-success {
+      background-color: rgba(74, 222, 128, 0.1);
+      border: 1px solid rgba(74, 222, 128, 0.2);
+      color: var(--success);
+    }
+    
+    .alert-error {
+      background-color: rgba(248, 113, 113, 0.1);
+      border: 1px solid rgba(248, 113, 113, 0.2);
+      color: var(--error);
+    }
+    
+    .tabs {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 1rem;
+    }
+    
+    .tab {
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: border-color 0.2s;
+    }
+    
+    .tab.active {
+      border-bottom-color: var(--primary);
+      color: var(--foreground);
+    }
+    
+    .tab:hover:not(.active) {
+      border-bottom-color: var(--border);
+    }
+    
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .grid-layout {
+        grid-template-columns: 1fr;
+      }
+      
+      .app-header h1 {
+        font-size: 1.5rem;
+      }
+      
+      .actions {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      
+      .btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-container">
+      <a href="index.html" class="back-button">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+        Back to Dashboard
+      </a>
+    </div>
+  </header>
+  
+  <div class="container">
+    <div class="app-header">
+      <h1>JSON Formatter</h1>
+      <p>Format, validate, and minify JSON data.</p>
+    </div>
+    
+    <div id="alert-container"></div>
+    
+    <div class="actions">
+      <button class="btn" id="upload-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+        Upload JSON
+      </button>
+      <input type="file" id="file-input" accept=".json" class="hidden">
+      
+      <button class="btn btn-primary" id="format-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H7a2 2 0 0 0-2 2v5a2 2 0 0 1-2 2 2 2 0 0 1 2 2v5a2 2 0 0 0 2 2h1"></path><path d="M16 3h1a2 2 0 0 1 2 2v5a2 2 0 0 0 2 2 2 2 0 0 0-2 2v5a2 2 0 0 1-2 2h-1"></path></svg>
+        Format JSON
+      </button>
+      
+      <button class="btn" id="minify-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"></path><path d="M18 13l-6 6"></path><path d="M6 13l6 6"></path></svg>
+        Minify JSON
+      </button>
+      
+      <button class="btn" id="clear-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+        Clear All
+      </button>
+    </div>
+    
+    <div class="grid-layout">
+      <div class="code-container">
+        <h3 class="section-header">Input JSON</h3>
+        <textarea id="json-input" class="code-editor" placeholder="Paste your JSON here..."></textarea>
+      </div>
+      
+      <div class="code-container">
+        <div class="section-header">
+          <span>Formatted Output</span>
+          <div class="section-actions" id="output-actions">
+            <button class="btn btn-sm" id="copy-btn">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              Copy
+            </button>
+            <button class="btn btn-sm" id="download-btn">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+              Download
+            </button>
+          </div>
+        </div>
+        <div id="output-container">
+          <textarea id="json-output" class="code-editor" placeholder="Formatted JSON will appear here..." readonly></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Elements
+      const jsonInput = document.getElementById('json-input');
+      const jsonOutput = document.getElementById('json-output');
+      const formatBtn = document.getElementById('format-btn');
+      const minifyBtn = document.getElementById('minify-btn');
+      const clearBtn = document.getElementById('clear-btn');
+      const copyBtn = document.getElementById('copy-btn');
+      const downloadBtn = document.getElementById('download-btn');
+      const uploadBtn = document.getElementById('upload-btn');
+      const fileInput = document.getElementById('file-input');
+      const outputActions = document.getElementById('output-actions');
+      const outputContainer = document.getElementById('output-container');
+      const alertContainer = document.getElementById('alert-container');
+      
+      // Initially hide output actions
+      outputActions.style.visibility = 'hidden';
+      
+      // Format JSON
+      formatBtn.addEventListener('click', () => {
+        const inputValue = jsonInput.value.trim();
+        
+        if (!inputValue) {
+          showAlert('Please enter JSON data.', 'error');
+          return;
+        }
+        
+        try {
+          // Parse and format JSON
+          const parsed = JSON.parse(inputValue);
+          const formatted = JSON.stringify(parsed, null, 2);
+          
+          // Display formatted JSON
+          showFormattedOutput(formatted);
+          
+          showAlert('JSON formatted successfully!', 'success');
+        } catch (error) {
+          showErrorOutput(error.message);
+          showAlert('Invalid JSON. Check the error message.', 'error');
+        }
+      });
+      
+      // Minify JSON
+      minifyBtn.addEventListener('click', () => {
+        const inputValue = jsonInput.value.trim();
+        
+        if (!inputValue) {
+          showAlert('Please enter JSON data.', 'error');
+          return;
+        }
+        
+        try {
+          // Parse and minify JSON
+          const parsed = JSON.parse(inputValue);
+          const minified = JSON.stringify(parsed);
+          
+          // Display minified JSON
+          showFormattedOutput(minified);
+          
+          showAlert('JSON minified successfully!', 'success');
+        } catch (error) {
+          showErrorOutput(error.message);
+          showAlert('Invalid JSON. Check the error message.', 'error');
+        }
+      });
+      
+      // Clear all
+      clearBtn.addEventListener('click', () => {
+        jsonInput.value = '';
+        clearOutput();
+        showAlert('All content cleared.', 'success');
+      });
+      
+      // Copy to clipboard
+      copyBtn.addEventListener('click', () => {
+        if (!jsonOutput.value) {
+          showAlert('No content to copy.', 'error');
+          return;
+        }
+        
+        navigator.clipboard.writeText(jsonOutput.value)
+          .then(() => {
+            showAlert('Copied to clipboard!', 'success');
+          })
+          .catch(() => {
+            showAlert('Failed to copy to clipboard.', 'error');
+          });
+      });
+      
+      // Download JSON
+      downloadBtn.addEventListener('click', () => {
+        if (!jsonOutput.value) {
+          showAlert('No content to download.', 'error');
+          return;
+        }
+        
+        const blob = new Blob([jsonOutput.value], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'formatted.json';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        showAlert('JSON file downloaded!', 'success');
+      });
+      
+      // File upload handling
+      uploadBtn.addEventListener('click', () => {
+        fileInput.click();
+      });
+      
+      fileInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        
+        if (!file.name.endsWith('.json')) {
+          showAlert('Please upload a JSON file.', 'error');
+          return;
+        }
+        
+        const reader = new FileReader();
+        
+        reader.onload = (event) => {
+          jsonInput.value = event.target.result;
+          showAlert('JSON file loaded. Click Format JSON to process.', 'success');
+        };
+        
+        reader.onerror = () => {
+          showAlert('Error reading file.', 'error');
+        };
+        
+        reader.readAsText(file);
+      });
+      
+      // Helper function to show formatted output
+      function showFormattedOutput(text) {
+        // Clear any existing error display
+        if (outputContainer.querySelector('.error-container')) {
+          outputContainer.innerHTML = '';
+          outputContainer.appendChild(jsonOutput);
+        }
+        
+        jsonOutput.value = text;
+        outputActions.style.visibility = 'visible';
+      }
+      
+      // Helper function to show error output
+      function showErrorOutput(errorMessage) {
+        // Remove textarea
+        if (outputContainer.contains(jsonOutput)) {
+          outputContainer.removeChild(jsonOutput);
+        }
+        
+        // Create error container if it doesn't exist
+        let errorContainer = outputContainer.querySelector('.error-container');
+        if (!errorContainer) {
+          errorContainer = document.createElement('div');
+          errorContainer.className = 'error-container';
+          outputContainer.appendChild(errorContainer);
+        }
+        
+        errorContainer.textContent = `Error: ${errorMessage}`;
+        outputActions.style.visibility = 'hidden';
+      }
+      
+      // Helper function to clear output
+      function clearOutput() {
+        if (outputContainer.querySelector('.error-container')) {
+          outputContainer.innerHTML = '';
+          outputContainer.appendChild(jsonOutput);
+        }
+        
+        jsonOutput.value = '';
+        outputActions.style.visibility = 'hidden';
+      }
+      
+      // Helper function to show alerts
+      function showAlert(message, type) {
+        const alert = document.createElement('div');
+        alert.className = `alert alert-${type}`;
+        alert.textContent = message;
+        
+        alertContainer.innerHTML = '';
+        alertContainer.appendChild(alert);
+        
+        // Remove alert after 3 seconds
+        setTimeout(() => {
+          alert.style.opacity = '0';
+          alert.style.transition = 'opacity 0.5s';
+          
+          setTimeout(() => {
+            if (alertContainer.contains(alert)) {
+              alertContainer.removeChild(alert);
+            }
+          }, 500);
+        }, 3000);
+      }
+    });
+  </script>
+</body>
+</html>

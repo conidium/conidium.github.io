@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Organizador de Datos</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .upload-section, .filter-section, .data-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .upload-section h2, .filter-section h2, .data-section h2 {
+            margin-top: 0;
+            color: #555;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f0f0f0;
+            cursor: pointer;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        button, .file-input-label {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+            display: inline-block;
+        }
+        button:hover, .file-input-label:hover {
+            background-color: #45a049;
+        }
+        .file-input {
+            display: none;
+        }
+        select, input[type="text"] {
+            padding: 8px;
+            margin-right: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .filter-row {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        @media (max-width: 768px) {
+            .filter-row {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            select, input[type="text"], button {
+                margin-bottom: 10px;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Organizador y Filtrador de Datos</h1>
+        
+        <div class="upload-section">
+            <h2>Cargar Archivo</h2>
+            <label class="file-input-label">
+                Seleccionar Archivo
+                <input type="file" id="fileInput" class="file-input" accept=".csv,.json,.txt">
+            </label>
+            <span id="fileName">Ningún archivo seleccionado</span>
+        </div>
+        
+        <div class="filter-section" id="filterSection" style="display: none;">
+            <h2>Filtros y Organización</h2>
+            <div class="filter-row">
+                <label>Ordenar por:</label>
+                <select id="sortColumn">
+                    <option value="">Seleccionar columna</option>
+                </select>
+                <select id="sortOrder">
+                    <option value="asc">Ascendente</option>
+                    <option value="desc">Descendente</option>
+                </select>
+                <button id="sortButton">Ordenar</button>
+            </div>
+            <div class="filter-row">
+                <label>Filtrar por:</label>
+                <select id="filterColumn">
+                    <option value="">Seleccionar columna</option>
+                </select>
+                <input type="text" id="filterValue" placeholder="Valor del filtro">
+                <button id="filterButton">Aplicar Filtro</button>
+                <button id="clearFilterButton">Limpiar Filtros</button>
+            </div>
+            <div class="filter-row">
+                <button id="downloadButton">Descargar Datos Filtrados</button>
+                <select id="downloadFormat">
+                    <option value="csv">CSV</option>
+                    <option value="json">JSON</option>
+                    <option value="txt">TXT</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="data-section" id="dataSection" style="display: none;">
+            <h2>Datos</h2>
+            <div style="overflow-x: auto;">
+                <table id="dataTable">
+                    <thead>
+                        <tr id="tableHeader"></tr>
+                    </thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Variables globales
+            let originalData = [];
+            let filteredData = [];
+            let columns = [];
+            let fileType = '';
+
+            // Referencias a elementos del DOM
+            const fileInput = document.getElementById('fileInput');
+            const fileName = document.getElementById('fileName');
+            const filterSection = document.getElementById('filterSection');
+            const dataSection = document.getElementById('dataSection');
+            const sortColumn = document.getElementById('sortColumn');
+            const filterColumn = document.getElementById('filterColumn');
+            const tableHeader = document.getElementById('tableHeader');
+            const tableBody = document.getElementById('tableBody');
+            const sortButton = document.getElementById('sortButton');
+            const filterButton = document.getElementById('filterButton');
+            const clearFilterButton = document.getElementById('clearFilterButton');
+            const downloadButton = document.getElementById('downloadButton');
+            const downloadFormat = document.getElementById('downloadFormat');
+
+            // Manejador de evento para cargar archivos
+            fileInput.addEventListener('change', handleFileUpload);
+            
+            // Manejadores de eventos para filtros y ordenación
+            sortButton.addEventListener('click', sortData);
+            filterButton.addEventListener('click', filterData);
+            clearFilterButton.addEventListener('click', clearFilters);
+            downloadButton.addEventListener('click', downloadData);
+
+            // Función para manejar la carga de archivos
+            function handleFileUpload(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                fileName.textContent = file.name;
+                fileType = file.name.split('.').pop().toLowerCase();
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    parseFileData(e.target.result, fileType);
+                };
+                reader.readAsText(file);
+            }
+
+            // Función para parsear datos del archivo
+            function parseFileData(content, type) {
+                try {
+                    switch (type) {
+                        case 'csv':
+                            Papa.parse(content, {
+                                header: true,
+                                dynamicTyping: true,
+                                skipEmptyLines: true,
+                                complete: function(results) {
+                                    processData(results.data, Object.keys(results.data[0]));
+                                }
+                            });
+                            break;
+                        case 'json':
+                            const jsonData = JSON.parse(content);
+                            if (Array.isArray(jsonData)) {
+                                processData(jsonData, Object.keys(jsonData[0]));
+                            } else {
+                                alert('El archivo JSON debe contener un array de objetos');
+                            }
+                            break;
+                        case 'txt':
+                            // Asumimos que el TXT está en formato delimitado por tabulaciones o por comas
+                            const lines = content.trim().split('\n');
+                            const headers = lines[0].split(/[,\t]/);
+                            const data = [];
+                            
+                            for (let i = 1; i < lines.length; i++) {
+                                const values = lines[i].split(/[,\t]/);
+                                if (values.length === headers.length) {
+                                    const row = {};
+                                    headers.forEach((header, index) => {
+                                        row[header.trim()] = values[index].trim();
+                                    });
+                                    data.push(row);
+                                }
+                            }
+                            processData(data, headers.map(h => h.trim()));
+                            break;
+                        default:
+                            alert('Formato de archivo no soportado');
+                    }
+                } catch (error) {
+                    alert('Error al procesar el archivo: ' + error.message);
+                    console.error(error);
+                }
+            }
+
+            // Función para procesar los datos y actualizar la UI
+            function processData(data, headers) {
+                originalData = data;
+                filteredData = [...data];
+                columns = headers;
+
+                // Mostrar secciones de filtro y datos
+                filterSection.style.display = 'block';
+                dataSection.style.display = 'block';
+
+                // Llenar las opciones de los selectores de columnas
+                populateColumnSelectors();
+
+                // Renderizar la tabla
+                renderTable();
+            }
+
+            // Función para poblar los selectores de columnas
+            function populateColumnSelectors() {
+                sortColumn.innerHTML = '<option value="">Seleccionar columna</option>';
+                filterColumn.innerHTML = '<option value="">Seleccionar columna</option>';
+
+                columns.forEach(column => {
+                    sortColumn.innerHTML += `<option value="${column}">${column}</option>`;
+                    filterColumn.innerHTML += `<option value="${column}">${column}</option>`;
+                });
+            }
+
+            // Función para renderizar la tabla
+            function renderTable() {
+                // Renderizar encabezados
+                tableHeader.innerHTML = '';
+                columns.forEach(column => {
+                    tableHeader.innerHTML += `<th data-column="${column}">${column}</th>`;
+                });
+
+                // Renderizar filas de datos
+                tableBody.innerHTML = '';
+                filteredData.forEach(row => {
+                    let tr = document.createElement('tr');
+                    columns.forEach(column => {
+                        tr.innerHTML += `<td>${row[column] !== undefined ? row[column] : ''}</td>`;
+                    });
+                    tableBody.appendChild(tr);
+                });
+
+                // Añadir evento click a los encabezados para ordenar
+                document.querySelectorAll('#tableHeader th').forEach(th => {
+                    th.addEventListener('click', function() {
+                        const column = this.getAttribute('data-column');
+                        sortColumn.value = column;
+                        sortData();
+                    });
+                });
+            }
+
+            // Función para ordenar datos
+            function sortData() {
+                const column = sortColumn.value;
+                const order = document.getElementById('sortOrder').value;
+                
+                if (!column) return;
+
+                filteredData.sort((a, b) => {
+                    let valA = a[column];
+                    let valB = b[column];
+                    
+                    // Normalizar valores para comparación
+                    if (typeof valA === 'string') valA = valA.toLowerCase();
+                    if (typeof valB === 'string') valB = valB.toLowerCase();
+                    
+                    if (valA < valB) return order === 'asc' ? -1 : 1;
+                    if (valA > valB) return order === 'asc' ? 1 : -1;
+                    return 0;
+                });
+
+                renderTable();
+            }
+
+            // Función para filtrar datos
+            function filterData() {
+                const column = filterColumn.value;
+                const value = document.getElementById('filterValue').value.toLowerCase();
+                
+                if (!column || value === '') {
+                    filteredData = [...originalData];
+                } else {
+                    filteredData = originalData.filter(row => {
+                        const cellValue = String(row[column]).toLowerCase();
+                        return cellValue.includes(value);
+                    });
+                }
+
+                renderTable();
+            }
+
+            // Función para limpiar filtros
+            function clearFilters() {
+                document.getElementById('filterColumn').value = '';
+                document.getElementById('filterValue').value = '';
+                filteredData = [...originalData];
+                renderTable();
+            }
+
+            // Función para descargar datos
+            function downloadData() {
+                const format = downloadFormat.value;
+                let content = '';
+                let filename = 'datos-filtrados.' + format;
+
+                switch (format) {
+                    case 'csv':
+                        content = columns.join(',') + '\n';
+                        filteredData.forEach(row => {
+                            content += columns.map(col => {
+                                let val = row[col] !== undefined ? row[col] : '';
+                                if (typeof val === 'string' && val.includes(',')) {
+                                    val = `"${val}"`;
+                                }
+                                return val;
+                            }).join(',') + '\n';
+                        });
+                        break;
+                    case 'json':
+                        content = JSON.stringify(filteredData, null, 2);
+                        break;
+                    case 'txt':
+                        content = columns.join('\t') + '\n';
+                        filteredData.forEach(row => {
+                            content += columns.map(col => row[col] !== undefined ? row[col] : '').join('\t') + '\n';
+                        });
+                        break;
+                }
+
+                // Crear blob y descargar
+                const blob = new Blob([content], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }
+        });
+    </script>
+</body>
+</html>
