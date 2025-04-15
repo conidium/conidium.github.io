@@ -1,564 +1,595 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mis Aplicaciones</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #192230;
-            color: #fff;
-            min-height: 100vh;
-            position: relative;
-        }
-        
-        .header {
-            padding: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-        }
-        
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        
-        #menuButton {
-            background-color: #ffcd00;
-            border: none;
-            width: 50px;
-            height: 50px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 24px;
-            color: white;
-            border-radius: 10px;
-            transition: all 0.2s ease;
-        }
-        
-        #menuButton:hover {
-            background-color: #ffda33;
-            transform: scale(1.05);
-        }
-        
-        .title {
-            color: #ffcd00;
-            font-size: 2em;
-            font-weight: 600;
-        }
-        
-        .search-wrapper {
-            margin: 20px;
-            position: relative;
-        }
-        
-        #searchBar {
-            width: 100%;
-            padding: 15px 45px 15px 20px;
-            font-size: 16px;
-            background-color: #2c2f38;
-            border: 2px solid #ffcd00;
-            border-radius: 25px;
-            color: white;
-            transition: all 0.3s ease;
-        }
-        
-        #searchBar::placeholder {
-            color: rgba(255, 255, 255, 0.6);
-        }
-        
-        #searchBar:focus {
-            outline: none;
-            box-shadow: 0 0 10px rgba(255, 205, 0, 0.5);
-            border-color: #ffda33;
-        }
-        
-        .search-icon {
-            position: absolute;
-            right: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #ffcd00;
-            pointer-events: none;
-        }
-        
-        .categories-wrapper {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            padding: 10px 20px;
-            justify-content: center;
-        }
-
-        .category-btn {
-            padding: 8px 15px;
-            background-color: #2c2f38;
-            color: white;
-            border: 2px solid #ffcd00;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: all 0.3s ease;
-        }
-
-        .category-btn:hover {
-            background-color: #ffcd00;
-            color: #192230;
-        }
-
-        .category-btn.active {
-            background-color: #ffcd00;
-            color: #192230;
-            font-weight: 600;
-        }
-        
-        #sidebar {
-            position: fixed;
-            top: 0;
-            left: -300px;
-            width: 300px;
-            height: 100vh;
-            background-color: rgba(44, 47, 56, 0.98);
-            transition: transform 0.3s ease;
-            z-index: 1000;
-            padding-top: 70px;
-            box-shadow: 5px 0 15px rgba(0, 0, 0, 0.3);
-            overflow-y: auto;
-        }
-        
-        #sidebar.visible {
-            transform: translateX(300px);
-        }
-        
-        .sidebar-header {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            padding: 20px;
-            background-color: #ffcd00;
-            color: white;
-            text-align: center;
-            font-size: 20px;
-            font-weight: 600;
-        }
-        
-        .sidebar-link {
-            display: flex;
-            align-items: center;
-            padding: 15px 20px;
-            color: white;
-            text-decoration: none;
-            font-size: 16px;
-            background-color: rgba(69, 69, 69, 0.2);
-            margin: 8px 15px;
-            border-radius: 8px;
-            transition: all 0.2s ease;
-            border-left: 3px solid transparent;
-        }
-        
-        .sidebar-link:hover {
-            background-color: rgba(255, 205, 0, 0.3);
-            border-left: 3px solid #ffcd00;
-            transform: translateX(5px);
-        }
-        
-        .sidebar-link i {
-            margin-right: 10px;
-            color: #ffcd00;
-        }
-        
-        .app-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 20px;
-            padding: 20px;
-        }
-        
-        .app-card {
-            background-color: #2c2f38;
-            border-radius: 10px;
-            overflow: hidden;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        
-        .app-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-        }
-        
-        .app-icon {
-            height: 150px;
-            background-color: #3d474e;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 40px;
-            color: #ffcd00;
-        }
-        
-        .app-info {
-            padding: 15px;
-        }
-        
-        .app-name {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 5px;
-            color: #ffcd00;
-        }
-        
-        .app-desc {
-            font-size: 14px;
-            color: #aaa;
-            margin-bottom: 15px;
-        }
-        
-        .app-link {
-            display: inline-block;
-            padding: 8px 15px;
-            background-color: #ffcd00;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-            font-size: 14px;
-            transition: background-color 0.2s ease;
-        }
-        
-        .app-link:hover {
-            background-color: #ffda33;
-        }
-        
-        .overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 999;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
-        }
-        
-        .overlay.visible {
-            opacity: 1;
-            pointer-events: auto;
-        }
-        
-        .no-results {
-            text-align: center;
-            padding: 30px;
-            color: #aaa;
-            font-size: 18px;
-            display: none;
-        }
-        
-        .theme-toggle {
-            background-color: transparent;
-            border: 2px solid #ffcd00;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            color: #ffcd00;
-            font-size: 20px;
-            transition: all 0.3s ease;
-        }
-        
-        .theme-toggle:hover {
-            background-color: rgba(255, 205, 0, 0.2);
-        }
-        
-        /* Tema claro */
-        body.light-theme {
-            background-color: #f0f2f5;
-            color: #333;
-        }
-        
-        body.light-theme .header {
-            background-color: white;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-        
-        body.light-theme #searchBar {
-            background-color: white;
-            border-color: #ffcd00;
-            color: #333;
-        }
-        
-        body.light-theme #searchBar::placeholder {
-            color: rgba(0, 0, 0, 0.4);
-        }
-        
-        body.light-theme #sidebar {
-            background-color: rgba(255, 255, 255, 0.98);
-        }
-        
-        body.light-theme .sidebar-link {
-            color: #333;
-            background-color: rgba(255, 205, 0, 0.1);
-        }
-        
-        body.light-theme .app-card {
-            background-color: white;
-        }
-        
-        body.light-theme .app-icon {
-            background-color: #f5f5f5;
-        }
-        
-        body.light-theme .app-desc {
-            color: #666;
-        }
-        
-        /* Estilos para dispositivos móviles */
-        @media (max-width: 768px) {
-            .app-grid {
-                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            }
-            
-            #sidebar {
-                width: 260px;
-                left: -260px;
-            }
-            
-            #sidebar.visible {
-                transform: translateX(260px);
-            }
-        }
-    </style>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Mis Aplicaciones</title>
+	<style>
+		* {
+		    margin: 0;
+		    padding: 0;
+		    box-sizing: border-box;
+		}
+		
+		body {
+		    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+		    background-color: #192230;
+		    color: #fff;
+		    min-height: 100vh;
+		    position: relative;
+		}
+		
+		.header {
+		    padding: 20px;
+		    display: flex;
+		    align-items: center;
+		    justify-content: space-between;
+		    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+		}
+		
+		.header-left {
+		    display: flex;
+		    align-items: center;
+		    gap: 15px;
+		}
+		
+		#menuButton {
+		    background-color: #ffcd00;
+		    border: none;
+		    width: 50px;
+		    height: 50px;
+		    display: flex;
+		    align-items: center;
+		    justify-content: center;
+		    cursor: pointer;
+		    font-size: 24px;
+		    color: white;
+		    border-radius: 10px;
+		    transition: all 0.2s ease;
+		}
+		
+		#menuButton:hover {
+		    background-color: #ffda33;
+		    transform: scale(1.05);
+		}
+		
+		.title {
+		    color: #ffcd00;
+		    font-size: 2em;
+		    font-weight: 600;
+		}
+		
+		.search-wrapper {
+		    margin: 20px;
+		    position: relative;
+		}
+		
+		#searchBar {
+		    width: 100%;
+		    padding: 15px 45px 15px 20px;
+		    font-size: 16px;
+		    background-color: #2c2f38;
+		    border: 2px solid #ffcd00;
+		    border-radius: 25px;
+		    color: white;
+		    transition: all 0.3s ease;
+		}
+		
+		#searchBar::placeholder {
+		    color: rgba(255, 255, 255, 0.6);
+		}
+		
+		#searchBar:focus {
+		    outline: none;
+		    box-shadow: 0 0 10px rgba(255, 205, 0, 0.5);
+		    border-color: #ffda33;
+		}
+		
+		.search-icon {
+		    position: absolute;
+		    right: 20px;
+		    top: 50%;
+		    transform: translateY(-50%);
+		    color: #ffcd00;
+		    pointer-events: none;
+		}
+		
+		.categories-wrapper {
+		    display: flex;
+		    flex-wrap: wrap;
+		    gap: 10px;
+		    padding: 10px 20px;
+		    justify-content: center;
+		}
+		
+		.category-btn {
+		    padding: 8px 15px;
+		    background-color: #2c2f38;
+		    color: white;
+		    border: 2px solid #ffcd00;
+		    border-radius: 20px;
+		    cursor: pointer;
+		    font-size: 14px;
+		    transition: all 0.3s ease;
+		}
+		
+		.category-btn:hover {
+		    background-color: #ffcd00;
+		    color: #192230;
+		}
+		
+		.category-btn.active {
+		    background-color: #ffcd00;
+		    color: #192230;
+		    font-weight: 600;
+		}
+		
+		#sidebar {
+		    position: fixed;
+		    top: 0;
+		    left: -300px;
+		    width: 300px;
+		    height: 100vh;
+		    background-color: rgba(44, 47, 56, 0.98);
+		    transition: transform 0.3s ease;
+		    z-index: 1000;
+		    padding-top: 70px;
+		    box-shadow: 5px 0 15px rgba(0, 0, 0, 0.3);
+		    overflow-y: auto;
+		}
+		
+		#sidebar.visible {
+		    transform: translateX(300px);
+		}
+		
+		.sidebar-header {
+		    position: absolute;
+		    top: 0;
+		    left: 0;
+		    width: 100%;
+		    padding: 20px;
+		    background-color: #ffcd00;
+		    color: white;
+		    text-align: center;
+		    font-size: 20px;
+		    font-weight: 600;
+		}
+		
+		.sidebar-link {
+		    display: flex;
+		    align-items: center;
+		    padding: 15px 20px;
+		    color: white;
+		    text-decoration: none;
+		    font-size: 16px;
+		    background-color: rgba(69, 69, 69, 0.2);
+		    margin: 8px 15px;
+		    border-radius: 8px;
+		    transition: all 0.2s ease;
+		    border-left: 3px solid transparent;
+		}
+		
+		.sidebar-link:hover {
+		    background-color: rgba(255, 205, 0, 0.3);
+		    border-left: 3px solid #ffcd00;
+		    transform: translateX(5px);
+		}
+		
+		.sidebar-link i {
+		    margin-right: 10px;
+		    color: #ffcd00;
+		}
+		
+		.app-grid {
+		    display: grid;
+		    grid-template-columns: repeat(auto-fill, minmax(125px, 1fr)); /* Reduced from 250px to 125px */
+		    gap: 20px;
+		    padding: 20px;
+		}
+		
+		.app-card {
+		    background-color: #2c2f38;
+		    border-radius: 10px;
+		    overflow: hidden;
+		    transition: transform 0.3s ease, box-shadow 0.3s ease;
+		    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+		}
+		
+		.app-card:hover {
+		    transform: translateY(-5px);
+		    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+		}
+		
+		.app-icon {
+		    height: 75px; /* Reduced from 150px to 75px */
+		    background-color: #3d474e;
+		    display: flex;
+		    align-items: center;
+		    justify-content: center;
+		    font-size: 20px; /* Reduced from 40px to 20px */
+		    color: #ffcd00;
+		}
+		
+		.app-info {
+		    padding: 7px; /* Reduced from 15px to 7px */
+		}
+		
+		.app-name {
+		    font-size: 14px; /* Reduced from 18px to 14px */
+		    font-weight: 600;
+		    margin-bottom: 3px; /* Reduced from 5px to 3px */
+		    color: #ffcd00;
+		}
+		
+		.app-desc {
+		    font-size: 10px; /* Reduced from 14px to 10px */
+		    color: #aaa;
+		    margin-bottom: 7px; /* Reduced from 15px to 7px */
+		}
+		
+		.app-link {
+		    display: inline-block;
+		    padding: 4px 7px; /* Reduced from 8px 15px to 4px 7px */
+		    background-color: #ffcd00;
+		    color: white;
+		    text-decoration: none;
+		    border-radius: 5px;
+		    font-size: 12px; /* Reduced from 14px to 12px */
+		    transition: background-color 0.2s ease;
+		}
+		
+		.app-link:hover {
+		    background-color: #ffda33;
+		}
+		
+		.overlay {
+		    position: fixed;
+		    top: 0;
+		    left: 0;
+		    width: 100%;
+		    height: 100%;
+		    background-color: rgba(0, 0, 0, 0.5);
+		    z-index: 999;
+		    opacity: 0;
+		    pointer-events: none;
+		    transition: opacity 0.3s ease;
+		}
+		
+		.overlay.visible {
+		    opacity: 1;
+		    pointer-events: auto;
+		}
+		
+		.no-results {
+		    text-align: center;
+		    padding: 30px;
+		    color: #aaa;
+		    font-size: 18px;
+		    display: none;
+		}
+		
+		.theme-toggle {
+		    background-color: transparent;
+		    border: 2px solid #ffcd00;
+		    width: 40px;
+		    height: 40px;
+		    border-radius: 50%;
+		    display: flex;
+		    align-items: center;
+		    justify-content: center;
+		    cursor: pointer;
+		    color: #ffcd00;
+		    font-size: 20px;
+		    transition: all 0.3s ease;
+		}
+		
+		.theme-toggle:hover {
+		    background-color: rgba(255, 205, 0, 0.2);
+		}
+		
+		/* Tema claro */
+		body.light-theme {
+		    background-color: #f0f2f5;
+		    color: #333;
+		}
+		
+		body.light-theme .header {
+		    background-color: white;
+		    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+		}
+		
+		body.light-theme #searchBar {
+		    background-color: white;
+		    border-color: #ffcd00;
+		    color: #333;
+		}
+		
+		body.light-theme #searchBar::placeholder {
+		    color: rgba(0, 0, 0, 0.4);
+		}
+		
+		body.light-theme #sidebar {
+		    background-color: rgba(255, 255, 255, 0.98);
+		}
+		
+		body.light-theme .sidebar-link {
+		    color: #333;
+		    background-color: rgba(255, 205, 0, 0.1);
+		}
+		
+		body.light-theme .app-card {
+		    background-color: white;
+		}
+		
+		body.light-theme .app-icon {
+		    background-color: #f5f5f5;
+		}
+		
+		body.light-theme .app-desc {
+		    color: #666;
+		}
+		
+		/* Estilos para dispositivos móviles */
+		@media (max-width: 768px) {
+		    .app-grid {
+		        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); /* Reduced from 200px to 100px */
+		    }
+		    
+		    #sidebar {
+		        width: 260px;
+		        left: -260px;
+		    }
+		    
+		    #sidebar.visible {
+		        transform: translateX(260px);
+		    }
+		}
+	</style>
+	<link rel="stylesheet"
+		href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
 </head>
+
 <body>
-    <div class="header">
-        <div class="header-left">
-            <button id="menuButton">☰</button>
-            <h1 class="title">Mis Aplicaciones</h1>
-        </div>
-        <button id="themeToggle" class="theme-toggle"><i class="fas fa-moon"></i></button>
-    </div>
-    
-    <div class="search-wrapper">
-        <input type="text" id="searchBar" placeholder="Buscar aplicaciones...">
-        <span class="search-icon"><i class="fas fa-search"></i></span>
-    </div>
-    
-    <div class="categories-wrapper">
-        <button class="category-btn active" data-category="all">Todas</button>
-        <button class="category-btn" data-category="Herramientas">Herramientas</button>
-        <button class="category-btn" data-category="Productividad">Productividad</button>
-        <button class="category-btn" data-category="Diseño">Diseño</button>
-        <button class="category-btn" data-category="Multimedia">Multimedia</button>
-        <button class="category-btn" data-category="Otros">Otros</button>
-    </div>
-    
-    <div class="no-results">
-        <i class="fas fa-search fa-3x"></i>
-        <p>No se encontraron aplicaciones que coincidan con tu búsqueda.</p>
-    </div>
-    
-    <div class="app-grid" id="appGrid">
-        <!-- Las tarjetas de aplicaciones se generarán dinámicamente con JavaScript -->
-    </div>
-    
-    <div id="sidebar">
-        <div class="sidebar-header">Menú de Navegación</div>
-        <a href="CodeFormatter.html" class="sidebar-link"><i class="fas fa-code"></i>Code Formatter</a>
-        <a href="Colorigual.html" class="sidebar-link"><i class="fas fa-paint-brush"></i>Color Igual</a>
-        <a href="CutMadera.HTML" class="sidebar-link"><i class="fas fa-cut"></i>Cut Madera</a>
-        <a href="Desglosahtml.html" class="sidebar-link"><i class="fas fa-sitemap"></i>Desglosa HTML</a>
-        <a href="DistanciaRedonda.html" class="sidebar-link"><i class="fas fa-ruler"></i>Distancia Redonda</a>
-        <a href="FormattHTML.html" class="sidebar-link"><i class="fas fa-file-code"></i>Formatt HTML</a>
-        <a href="NotePad.html" class="sidebar-link"><i class="fas fa-sticky-note"></i>NotePad</a>
-        <a href="OrganizerTask.html" class="sidebar-link"><i class="fas fa-tasks"></i>Organizer Task</a>
-        <a href="Pronto1.html" class="sidebar-link"><i class="fas fa-clock"></i>Pronto 1</a>
-        <a href="Pronto2.html" class="sidebar-link"><i class="fas fa-clock"></i>Pronto 2</a>
-        <a href="SelectURLs.HTML" class="sidebar-link"><i class="fas fa-link"></i>Select URLs</a>
-        <a href="VideoScrap.html" class="sidebar-link"><i class="fas fa-video"></i>Video Scrap</a>
-        <a href="VideosURLtxt.html" class="sidebar-link"><i class="fas fa-file-video"></i>Videos URL txt</a>
-        <a href="VisualizadorHtml.html" class="sidebar-link"><i class="fas fa-eye"></i>Visualizador HTML</a>
-        <a href="colorpalettegenerator.html" class="sidebar-link"><i class="fas fa-palette"></i>Color Palette Generator</a>
-        <a href="csvOrganizer.html" class="sidebar-link"><i class="fas fa-table"></i>CSV Organizer</a>
-        <a href="estructurapp.html" class="sidebar-link"><i class="fas fa-th-large"></i>Estructura App</a>
-        <a href="htmlcompiler.html" class="sidebar-link"><i class="fas fa-code"></i>HTML Compiler</a>
-        <a href="index.html" class="sidebar-link"><i class="fas fa-home"></i>Index</a>
-        <a href="jsonformatter.html" class="sidebar-link"><i class="fas fa-brackets-curly"></i>JSON Formatter</a>
-        <a href="media-finder.html" class="sidebar-link"><i class="fas fa-photo-video"></i>Media Finder</a>
-        <a href="pdfs.html" class="sidebar-link"><i class="fas fa-file-pdf"></i>PDFs</a>
-        <a href="presupuestos.html" class="sidebar-link"><i class="fas fa-calculator"></i>Presupuestos</a>
-        <a href="urlextract.html" class="sidebar-link"><i class="fas fa-globe"></i>URL Extract</a>
-    </div>
-    
-    <div class="overlay" id="overlay"></div>
-    
-    <script>
-        // Variables globales
-        let apps = [];
-        const menuButton = document.getElementById('menuButton');
-        const sidebar = document.getElementById('sidebar');
-        const searchBar = document.getElementById('searchBar');
-        const appGrid = document.getElementById('appGrid');
-        const overlay = document.getElementById('overlay');
-        const noResults = document.querySelector('.no-results');
-        const themeToggle = document.getElementById('themeToggle');
-        const categoryButtons = document.querySelectorAll('.category-btn');
-        let selectedCategory = 'all';
+	<div class="header">
+		<div class="header-left">
+			<button id="menuButton">☰</button>
+			<h1 class="title">Mis Aplicaciones</h1>
+		</div>
+		<button id="themeToggle" class="theme-toggle"><i
+				class="fas fa-moon"></i></button>
+	</div>
 
-        // Cargar aplicaciones desde el archivo JSON
-        async function loadApps() {
-            try {
-                const response = await fetch('apps.json');
-                apps = await response.json();
-                generateAppCards(apps); // Generar tarjetas iniciales
-            } catch (error) {
-                console.error('Error al cargar las aplicaciones:', error);
-                noResults.style.display = 'block';
-                noResults.innerHTML = '<p>Error al cargar las aplicaciones. Por favor, intenta de nuevo más tarde.</p>';
-            }
-        }
+	<div class="search-wrapper">
+		<input type="text" id="searchBar" placeholder="Buscar aplicaciones...">
+		<span class="search-icon"><i class="fas fa-search"></i></span>
+	</div>
 
-        // Generar tarjetas de aplicaciones
-        function generateAppCards(appData) {
-            appGrid.innerHTML = '';
-            
-            // Filtrar por categoría
-            let filteredApps = appData;
-            if (selectedCategory !== 'all') {
-                filteredApps = appData.filter(app => app.category === selectedCategory);
-            }
+	<div class="categories-wrapper">
+		<button class="category-btn active" data-category="all">Todas</button>
+		<button class="category-btn"
+			data-category="Herramientas">Herramientas</button>
+		<button class="category-btn"
+			data-category="Productividad">Productividad</button>
+		<button class="category-btn" data-category="Diseño">Diseño</button>
+		<button class="category-btn" data-category="Multimedia">Multimedia</button>
+		<button class="category-btn" data-category="Otros">Otros</button>
+	</div>
 
-            if (filteredApps.length === 0) {
-                noResults.style.display = 'block';
-                return;
-            }
-            
-            noResults.style.display = 'none';
-            
-            filteredApps.forEach(app => {
-                const card = document.createElement('div');
-                card.className = 'app-card';
-                
-                card.innerHTML = `
-                    <div class="app-icon">
-                        <i class="${app.icon}"></i>
-                    </div>
-                    <div class="app-info">
-                        <h3 class="app-name">${app.name}</h3>
-                        <p class="app-desc">${app.description}</p>
-                        <a href="${app.url}" class="app-link">Abrir</a>
-                    </div>
-                `;
-                
-                appGrid.appendChild(card);
-            });
-        }
+	<div class="no-results">
+		<i class="fas fa-search fa-3x"></i>
+		<p>No se encontraron aplicaciones que coincidan con tu búsqueda.</p>
+	</div>
 
-        // Cargar aplicaciones al iniciar
-        loadApps();
+	<div class="app-grid" id="appGrid">
+		<!-- Las tarjetas de aplicaciones se generarán dinámicamente con JavaScript -->
+	</div>
 
-        // Evento para el botón del menú
-        menuButton.addEventListener('click', function() {
-            sidebar.classList.toggle('visible');
-            overlay.classList.toggle('visible');
-        });
+	<div id="sidebar">
+		<div class="sidebar-header">Menú de Navegación</div>
+		<a href="CodeFormatter.html" class="sidebar-link"><i
+				class="fas fa-code"></i>Code Formatter</a>
+		<a href="Colorigual.html" class="sidebar-link"><i
+				class="fas fa-paint-brush"></i>Color Igual</a>
+		<a href="CutMadera.HTML" class="sidebar-link"><i class="fas fa-cut"></i>Cut
+			Madera</a>
+		<a href="Desglosahtml.html" class="sidebar-link"><i
+				class="fas fa-sitemap"></i>Desglosa HTML</a>
+		<a href="DistanciaRedonda.html" class="sidebar-link"><i
+				class="fas fa-ruler"></i>Distancia Redonda</a>
+		<a href="FormattHTML.html" class="sidebar-link"><i
+				class="fas fa-file-code"></i>Formatt HTML</a>
+		<a href="NotePad.html" class="sidebar-link"><i
+				class="fas fa-sticky-note"></i>NotePad</a>
+		<a href="OrganizerTask.html" class="sidebar-link"><i
+				class="fas fa-tasks"></i>Organizer Task</a>
+		<a href="Pronto1.html" class="sidebar-link"><i
+				class="fas fa-clock"></i>Pronto 1</a>
+		<a href="Pronto2.html" class="sidebar-link"><i
+				class="fas fa-clock"></i>Pronto 2</a>
+		<a href="SelectURLs.HTML" class="sidebar-link"><i
+				class="fas fa-link"></i>Select URLs</a>
+		<a href="VideoScrap.html" class="sidebar-link"><i
+				class="fas fa-video"></i>Video Scrap</a>
+		<a href="VideosURLtxt.html" class="sidebar-link"><i
+				class="fas fa-file-video"></i>Videos URL txt</a>
+		<a href="VisualizadorHtml.html" class="sidebar-link"><i
+				class="fas fa-eye"></i>Visualizador HTML</a>
+		<a href="colorpalettegenerator.html" class="sidebar-link"><i
+				class="fas fa-palette"></i>Color Palette Generator</a>
+		<a href="csvOrganizer.html" class="sidebar-link"><i
+				class="fas fa-table"></i>CSV Organizer</a>
+		<a href="estructurapp.html" class="sidebar-link"><i
+				class="fas fa-th-large"></i>Estructura App</a>
+		<a href="htmlcompiler.html" class="sidebar-link"><i
+				class="fas fa-code"></i>HTML Compiler</a>
+		<a href="index.html" class="sidebar-link"><i
+				class="fas fa-home"></i>Index</a>
+		<a href="jsonformatter.html" class="sidebar-link"><i
+				class="fas fa-brackets-curly"></i>JSON Formatter</a>
+		<a href="media-finder.html" class="sidebar-link"><i
+				class="fas fa-photo-video"></i>Media Finder</a>
+		<a href="pdfs.html" class="sidebar-link"><i
+				class="fas fa-file-pdf"></i>PDFs</a>
+		<a href="presupuestos.html" class="sidebar-link"><i
+				class="fas fa-calculator"></i>Presupuestos</a>
+		<a href="urlextract.html" class="sidebar-link"><i
+				class="fas fa-globe"></i>URL Extract</a>
+	</div>
 
-        // Cerrar sidebar al hacer clic en overlay
-        overlay.addEventListener('click', function() {
-            sidebar.classList.remove('visible');
-            overlay.classList.remove('visible');
-        });
+	<div class="overlay" id="overlay"></div>
 
-        // Funcionalidad de búsqueda
-        searchBar.addEventListener('input', function() {
-            const searchTerm = this.value.toLowerCase();
-            
-            // Filtrar aplicaciones por categoría y búsqueda
-            let filteredApps = apps;
-            
-            if (selectedCategory !== 'all') {
-                filteredApps = apps.filter(app => app.category === selectedCategory);
-            }
-            
-            filteredApps = filteredApps.filter(app => 
-                app.name.toLowerCase().includes(searchTerm) || 
-                app.description.toLowerCase().includes(searchTerm)
-            );
-            
-            generateAppCards(filteredApps);
-        });
-
-        // Evento para los botones de categoría
-        categoryButtons.forEach(button => {
-            button.addEventListener('click', function() {
-                categoryButtons.forEach(btn => btn.classList.remove('active'));
-                this.classList.add('active');
-                selectedCategory = this.getAttribute('data-category');
-                
-                // Filtrar por búsqueda y categoría
-                const searchTerm = searchBar.value.toLowerCase();
-                let filteredApps = apps;
-                
-                if (selectedCategory !== 'all') {
-                    filteredApps = apps.filter(app => app.category === selectedCategory);
-                }
-                
-                filteredApps = filteredApps.filter(app => 
-                    app.name.toLowerCase().includes(searchTerm) || 
-                    app.description.toLowerCase().includes(searchTerm)
-                );
-                
-                generateAppCards(filteredApps);
-            });
-        });
-
-        // Cambio de tema
-        themeToggle.addEventListener('click', function() {
-            document.body.classList.toggle('light-theme');
-            
-            // Cambiar el icono
-            const icon = themeToggle.querySelector('i');
-            if (document.body.classList.contains('light-theme')) {
-                icon.className = 'fas fa-sun';
-            } else {
-                icon.className = 'fas fa-moon';
-            }
-        });
-
-        // Cerrar el sidebar cuando se hace clic en un enlace (en dispositivos móviles)
-        const sidebarLinks = document.querySelectorAll('.sidebar-link');
-        sidebarLinks.forEach(link => {
-            link.addEventListener('click', function() {
-                if (window.innerWidth <= 768) {
-                    sidebar.classList.remove('visible');
-                    overlay.classList.remove('visible');
-                }
-            });
-        });
-
-        // Detectar cambios de tamaño de ventana
-        window.addEventListener('resize', function() {
-            if (window.innerWidth > 768 && sidebar.classList.contains('visible')) {
-                overlay.classList.add('visible');
-            }
-        });
-    </script>
+	<script>
+		// Variables globales
+		let apps = [];
+		const menuButton = document.getElementById('menuButton');
+		const sidebar = document.getElementById('sidebar');
+		const searchBar = document.getElementById('searchBar');
+		const appGrid = document.getElementById('appGrid');
+		const overlay = document.getElementById('overlay');
+		const noResults = document.querySelector('.no-results');
+		const themeToggle = document.getElementById('themeToggle');
+		const categoryButtons = document.querySelectorAll('.category-btn');
+		let selectedCategory = 'all';
+		
+		// Cargar aplicaciones desde el archivo JSON
+		async function loadApps() {
+		    try {
+		        const response = await fetch('apps.json');
+		        apps = await response.json();
+		        generateAppCards(apps); // Generar tarjetas iniciales
+		    } catch (error) {
+		        console.error('Error al cargar las aplicaciones:', error);
+		        noResults.style.display = 'block';
+		        noResults.innerHTML = '<p>Error al cargar las aplicaciones. Por favor, intenta de nuevo más tarde.</p>';
+		    }
+		}
+		
+		// Generar tarjetas de aplicaciones
+		function generateAppCards(appData) {
+		    appGrid.innerHTML = '';
+		    
+		    // Filtrar por categoría
+		    let filteredApps = appData;
+		    if (selectedCategory !== 'all') {
+		        filteredApps = appData.filter(app => app.category === selectedCategory);
+		    }
+		
+		    if (filteredApps.length === 0) {
+		        noResults.style.display = 'block';
+		        return;
+		    }
+		    
+		    noResults.style.display = 'none';
+		    
+		    filteredApps.forEach(app => {
+		        const card = document.createElement('div');
+		        card.className = 'app-card';
+		        
+		        card.innerHTML = `
+		            <div class="app-icon">
+		                <i class="${app.icon}"></i>
+		            </div>
+		            <div class="app-info">
+		                <h3 class="app-name">${app.name}</h3>
+		                <p class="app-desc">${app.description}</p>
+		                <a href="${app.url}" class="app-link">Abrir</a>
+		            </div>
+		        `;
+		        
+		        appGrid.appendChild(card);
+		    });
+		}
+		
+		// Cargar aplicaciones al iniciar
+		loadApps();
+		
+		// Evento para el botón del menú
+		menuButton.addEventListener('click', function() {
+		    sidebar.classList.toggle('visible');
+		    overlay.classList.toggle('visible');
+		});
+		
+		// Cerrar sidebar al hacer clic en overlay
+		overlay.addEventListener('click', function() {
+		    sidebar.classList.remove('visible');
+		    overlay.classList.remove('visible');
+		});
+		
+		// Funcionalidad de búsqueda
+		searchBar.addEventListener('input', function() {
+		    const searchTerm = this.value.toLowerCase();
+		    
+		    // Filtrar aplicaciones por categoría y búsqueda
+		    let filteredApps = apps;
+		    
+		    if (selectedCategory !== 'all') {
+		        filteredApps = apps.filter(app => app.category === selectedCategory);
+		    }
+		    
+		    filteredApps = filteredApps.filter(app => 
+		        app.name.toLowerCase().includes(searchTerm) || 
+		        app.description.toLowerCase().includes(searchTerm)
+		    );
+		    
+		    generateAppCards(filteredApps);
+		});
+		
+		// Evento para los botones de categoría
+		categoryButtons.forEach(button => {
+		    button.addEventListener('click', function() {
+		        categoryButtons.forEach(btn => btn.classList.remove('active'));
+		        this.classList.add('active');
+		        selectedCategory = this.getAttribute('data-category');
+		        
+		        // Filtrar por búsqueda y categoría
+		        const searchTerm = searchBar.value.toLowerCase();
+		        let filteredApps = apps;
+		        
+		        if (selectedCategory !== 'all') {
+		            filteredApps = apps.filter(app => app.category === selectedCategory);
+		        }
+		        
+		        filteredApps = filteredApps.filter(app => 
+		            app.name.toLowerCase().includes(searchTerm) || 
+		            app.description.toLowerCase().includes(searchTerm)
+		        );
+		        
+		        generateAppCards(filteredApps);
+		    });
+		});
+		
+		// Cambio de tema
+		themeToggle.addEventListener('click', function() {
+		    document.body.classList.toggle('light-theme');
+		    
+		    // Cambiar el icono
+		    const icon = themeToggle.querySelector('i');
+		    if (document.body.classList.contains('light-theme')) {
+		        icon.className = 'fas fa-sun';
+		    } else {
+		        icon.className = 'fas fa-moon';
+		    }
+		});
+		
+		// Cerrar el sidebar cuando se hace clic en un enlace (en dispositivos móviles)
+		const sidebarLinks = document.querySelectorAll('.sidebar-link');
+		sidebarLinks.forEach(link => {
+		    link.addEventListener('click', function() {
+		        if (window.innerWidth <= 768) {
+		            sidebar.classList.remove('visible');
+		            overlay.classList.remove('visible');
+		        }
+		    });
+		});
+		
+		// Detectar cambios de tamaño de ventana
+		window.addEventListener('resize', function() {
+		    if (window.innerWidth > 768 && sidebar.classList.contains('visible')) {
+		        overlay.classList.add('visible');
+		    }
+		});
+	</script>
 </body>
+
 </html>
