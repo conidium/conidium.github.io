@@ -40,11 +40,6 @@ Este proyecto reúne una colección de más de 20 aplicaciones web útiles para 
 - **Presupuestos**: Crea y gestiona presupuestos personales o comerciales
 - **URL Extract**: Extrae URLs de páginas web de forma rápida
 
-## 📸 Capturas de pantalla
-
-![Vista principal](https://via.placeholder.com/800x450/1c1e22/FFFFFF?text=Vista+Principal)
-![Modo claro](https://via.placeholder.com/800x450/f0f2f5/333333?text=Modo+Claro)
-![Vista móvil](https://via.placeholder.com/400x800/1c1e22/FFFFFF?text=Vista+Móvil)
 
 ## 🔧 Uso
 
@@ -82,12 +77,8 @@ Las contribuciones son bienvenidas. Para contribuir:
 
 ## 📝 Licencia
 
-Este proyecto está bajo la Licencia MIT. Consulta el archivo [LICENSE](LICENSE) para más detalles.
-
-## 📞 Contacto
-
-Si tienes preguntas o sugerencias, no dudes en [abrir un issue](https://github.com/tunombre/mis-aplicaciones/issues) o contactarme directamente.
+Este proyecto está bajo la Licencia MIT. Consulta el archivo [LICENSE](LICENSE) para más detalle.
 
 ---
 
-Hecho con ❤️ por conidium](https://github.com/tunombre)
+Hecho con ❤️ por conidium](https://github.com/conidium)
