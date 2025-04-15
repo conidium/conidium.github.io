@@ -16,16 +16,6 @@
             --border-color: #333333;
         }
 
-        body.light-theme {
-            --bg-color: #ffffff;
-            --header-bg: #f5f5f5;
-            --card-bg: #ffffff;
-            --card-hover: #f0f0f0;
-            --text-color: #333333;
-            --text-secondary: #666666;
-            --border-color: #cccccc;
-        }
-
         * {
             margin: 0;
             padding: 0;
@@ -48,12 +38,7 @@
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
         }
 
-        .header-buttons {
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        .back-btn, .theme-toggle {
+        .back-btn {
             background-color: transparent;
             color: var(--text-color);
             border: 1px solid var(--border-color);
@@ -64,7 +49,7 @@
             transition: background-color 0.2s;
         }
 
-        .back-btn:hover, .theme-toggle:hover {
+        .back-btn:hover {
             background-color: var(--border-color);
         }
 
@@ -183,22 +168,6 @@
             font-weight: bold;
         }
 
-        .controls {
-            display: flex;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-        }
-
-        .filter-input {
-            padding: 0.5rem;
-            background-color: var(--card-bg);
-            color: var(--text-color);
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-            font-size: 0.9rem;
-            flex: 1;
-        }
-
         .results-list {
             list-style: none;
             margin: 0;
@@ -259,24 +228,13 @@
             .btn-primary {
                 width: 100%;
             }
-
-            .controls {
-                flex-direction: column;
-            }
-
-            .filter-input {
-                width: 100%;
-            }
         }
     </style>
 </head>
 <body>
     <header>
         <h1>URL Extractor</h1>
-        <div class="header-buttons">
-            <button class="theme-toggle" aria-label="Toggle light/dark theme">Toggle Theme</button>
-            <button class="back-btn" onclick="location.href='/'">Back to Dashboard</button>
-        </div>
+        <button class="back-btn" onclick="location.href='/'" aria-label="Back to dashboard">Back to Dashboard</button>
     </header>
 
     <main>
@@ -301,7 +259,7 @@
                     placeholder="Enter website URL (e.g., https://example.com)"
                     aria-label="Website URL"
                 >
-                <button id="extract-url-btn" class="btn btn-primary">Extract URLs</button>
+                <button id="extract-url-btn" class="btn btn-primary" aria-label="Extract URLs from website">Extract URLs</button>
             </div>
 
             <div id="source-input" class="input-container hidden">
@@ -310,7 +268,7 @@
                     placeholder="Paste HTML source code here..."
                     aria-label="HTML source code"
                 ></textarea>
-                <button id="extract-source-btn" class="btn btn-primary">Extract URLs</button>
+                <button id="extract-source-btn" class="btn btn-primary" aria-label="Extract URLs from source code">Extract URLs</button>
             </div>
 
             <div class="toggle-container">
@@ -329,14 +287,7 @@
                 <span class="results-count" id="url-count">0 URLs found</span>
             </div>
 
-            <div class="controls">
-                <input
-                    type="text"
-                    id="filter-input"
-                    class="filter-input"
-                    placeholder="Filter URLs..."
-                    aria-label="Filter extracted URLs"
-                >
+            <div class="controls" style="margin-bottom: 1rem;">
                 <button id="copy-all-btn" class="btn" aria-label="Copy all extracted URLs">Copy All</button>
                 <button id="download-btn" class="btn" aria-label="Download extracted URLs as text file">Download as TXT</button>
             </div>
@@ -357,7 +308,6 @@
             EXTRACT_SOURCE_BTN: '#extract-source-btn',
             WEBSITE_URL: '#website-url',
             SOURCE_CODE: '#source-code',
-            FILTER_INPUT: '#filter-input',
         };
 
         const MESSAGES = {
@@ -380,32 +330,6 @@
             } catch {
                 return false;
             }
-        }
-
-        function normalizeUrl(url) {
-            try {
-                const parsed = new URL(url);
-                parsed.searchParams.delete('utm_source');
-                parsed.searchParams.delete('utm_medium');
-                parsed.hash = '';
-                return parsed.toString().replace(/\/+$/, '');
-            } catch {
-                return url;
-            }
-        }
-
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-
-        function debounce(fn, ms) {
-            let timeout;
-            return (...args) => {
-                clearTimeout(timeout);
-                timeout = setTimeout(() => fn(...args), ms);
-            };
         }
 
         // UI Functions
@@ -435,7 +359,7 @@
                     a.href = url;
                     a.target = '_blank';
                     a.className = 'result-link';
-                    a.innerHTML = escapeHtml(url);
+                    a.textContent = url;
                     li.appendChild(a);
                     resultsList.appendChild(li);
                 });
@@ -447,24 +371,22 @@
             }
 
             resultsContainer.classList.remove('hidden');
-            document.querySelector(SELECTORS.FILTER_INPUT).value = '';
         }
 
         // Extractor Functions
         function extractUrls(html, baseUrl = '') {
             const urls = new Set();
-            const urlAttrRegex = /(?:href|src|data-src|content)=["'](.*?)["']/gi;
+
+            // Regex para URLs en href y src
+            const hrefRegex = /href=["'](.*?)["']/gi;
+            const srcRegex = /src=["'](.*?)["']/gi;
             const urlRegex = /https?:\/\/[^\s"'<>()]+/g;
 
+            // Extraer URLs de href
             let match;
-            while ((match = urlAttrRegex.exec(html)) !== null) {
-                if (
-                    match[1] &&
-                    !match[1].startsWith('#') &&
-                    !match[1].startsWith('javascript:') &&
-                    !match[1].startsWith('data:')
-                ) {
-                    let url = normalizeUrl(match[1]);
+            while ((match = hrefRegex.exec(html)) !== null) {
+                if (match[1] && !match[1].startsWith('#') && !match[1].startsWith('javascript:')) {
+                    let url = match[1];
                     if (baseUrl && !url.startsWith('http://') && !url.startsWith('https://')) {
                         if (url.startsWith('/')) {
                             const domain = baseUrl.split('/').slice(0, 3).join('/');
@@ -477,8 +399,25 @@
                 }
             }
 
+            // Extraer URLs de src
+            while ((match = srcRegex.exec(html)) !== null) {
+                if (match[1] && !match[1].startsWith('data:')) {
+                    let url = match[1];
+                    if (baseUrl && !url.startsWith('http://') && !url.startsWith('https://')) {
+                        if (url.startsWith('/')) {
+                            const domain = baseUrl.split('/').slice(0, 3).join('/');
+                            url = domain + url;
+                        } else {
+                            url = baseUrl.replace(/\/[^\/]*$/, '/') + url;
+                        }
+                    }
+                    urls.add(url);
+                }
+            }
+
+            // Extraer URLs planas
             while ((match = urlRegex.exec(html)) !== null) {
-                urls.add(normalizeUrl(match[0]));
+                urls.add(match[0]);
             }
 
             return [...urls];
@@ -496,6 +435,7 @@
 
             showLoader(MESSAGES.FETCHING);
             document.querySelector(SELECTORS.RESULTS_CONTAINER).classList.add('hidden');
+            document.querySelector(SELECTORS.RESULTS_LIST).innerHTML = '';
 
             try {
                 const useProxy = document.getElementById('use-proxy').checked;
@@ -539,6 +479,7 @@
 
             showLoader(MESSAGES.EXTRACTING);
             document.querySelector(SELECTORS.RESULTS_CONTAINER).classList.add('hidden');
+            document.querySelector(SELECTORS.RESULTS_LIST).innerHTML = '';
 
             try {
                 const urls = extractUrls(sourceCode);
@@ -564,6 +505,10 @@
 
         document.querySelector(SELECTORS.EXTRACT_URL_BTN).addEventListener('click', () => {
             let url = document.querySelector(SELECTORS.WEBSITE_URL).value.trim();
+            if (!url) {
+                alert(MESSAGES.INVALID_URL);
+                return;
+            }
             if (!url.startsWith('http://') && !url.startsWith('https://')) {
                 url = `https://${url}`;
             }
@@ -611,25 +556,6 @@
             URL.revokeObjectURL(url);
             document.getElementById('download-btn').focus();
         });
-
-        document.querySelector(SELECTORS.FILTER_INPUT).addEventListener('input', debounce((e) => {
-            const filter = e.target.value.toLowerCase();
-            const items = document.querySelectorAll('.result-item');
-            items.forEach(item => {
-                const url = item.textContent.toLowerCase();
-                item.style.display = url.includes(filter) ? '' : 'none';
-            });
-        }, 300));
-
-        document.querySelector('.theme-toggle').addEventListener('click', () => {
-            document.body.classList.toggle('light-theme');
-            localStorage.setItem('theme', document.body.classList.contains('light-theme') ? 'light' : 'dark');
-        });
-
-        // Cargar tema guardado
-        if (localStorage.getItem('theme') === 'light') {
-            document.body.classList.add('light-theme');
-        }
     </script>
 </body>
 </html>
