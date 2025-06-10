@@ -1,561 +1,1403 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>URL Extractor - App Dashboard Pro</title>
+    <title>Extractor Universal de URLs</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --bg-color: #121212;
-            --header-bg: #1E1E1E;
-            --card-bg: #1E1E1E;
-            --card-hover: #2A2A2A;
-            --text-color: #ffffff;
-            --text-secondary: #bbbbbb;
-            --primary-color: #10B981;
-            --border-color: #333333;
+            --primary-color: #2563EB;
+            --secondary-color: #7C3AED;
+            --accent-color: #F59E0B;
+            --bg-dark: #111827;
+            --bg-light: #F9FAFB;
+            --text-dark-primary: #F9FAFB;
+            --text-dark-secondary: #9CA3AF;
+            --text-light-primary: #111827;
+            --text-light-secondary: #4B5563;
+            --success-color: #10B981;
+            --error-color: #EF4444;
+            --warning-color: #F59E0B;
+            --info-color: #3B82F6;
+            --surface-dark: #1F2937;
+            --surface-light: #FFFFFF;
+            --border-dark: #374151;
+            --border-light: #E5E7EB;
+            --transition-speed: 0.3s;
         }
 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            line-height: 1.6;
+            background-color: var(--bg-dark);
+            color: var(--text-dark-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            transition: background-color var(--transition-speed), color var(--transition-speed);
         }
 
-        header {
-            background-color: var(--header-bg);
-            padding: 1rem;
+        body.light-mode {
+            --bg-dark: var(--bg-light);
+            --text-dark-primary: var(--text-light-primary);
+            --text-dark-secondary: var(--text-light-secondary);
+            --surface-dark: var(--surface-light);
+            --border-dark: var(--border-light);
+        }
+
+        .app-container {
+            display: flex;
+            flex-grow: 1;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 280px;
+            background-color: var(--surface-dark);
+            border-right: 1px solid var(--border-dark);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            transition: background-color var(--transition-speed), border-color var(--transition-speed);
+            overflow-y: auto;
+        }
+
+        .main-content {
+            flex-grow: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-dark);
         }
 
-        .back-btn {
-            background-color: transparent;
-            color: var(--text-color);
-            border: 1px solid var(--border-color);
-            padding: 0.5rem 1rem;
-            border-radius: 4px;
+        .header h1 {
+            font-size: 24px;
+            color: var(--primary-color);
+        }
+
+        .theme-toggle {
+            background: none;
+            border: none;
+            color: var(--text-dark-secondary);
+            font-size: 20px;
             cursor: pointer;
-            font-size: 0.9rem;
-            transition: background-color 0.2s;
+            transition: color var(--transition-speed);
         }
 
-        .back-btn:hover {
-            background-color: var(--border-color);
+        .theme-toggle:hover {
+            color: var(--primary-color);
         }
 
-        h1 {
-            font-size: 1.5rem;
+        .input-panel {
+            background-color: var(--surface-dark);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-dark);
         }
 
-        main {
-            padding: 1.5rem;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .input-section {
-            margin-bottom: 1.5rem;
-        }
-
-        .input-container {
+        .input-group {
             display: flex;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-            transition: opacity 0.3s ease;
+            gap: 10px;
+            margin-bottom: 15px;
         }
 
-        .input-url {
-            flex: 1;
-            padding: 0.75rem;
-            background-color: var(--card-bg);
-            color: var(--text-color);
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-            font-size: 1rem;
-            outline: none;
+        .url-input {
+            flex-grow: 1;
+            padding: 10px 15px;
+            border-radius: 6px;
+            border: 1px solid var(--border-dark);
+            background-color: var(--bg-dark);
+            color: var(--text-dark-primary);
+            font-size: 14px;
         }
 
-        .input-url:focus {
-            border-color: var(--primary-color);
-        }
-
-        .btn {
-            background-color: var(--card-bg);
-            color: var(--text-color);
-            border: 1px solid var(--border-color);
-            padding: 0.5rem 1rem;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            transition: background-color 0.2s;
-        }
-
-        .btn:hover {
-            background-color: var(--card-hover);
-        }
-
-        .btn-primary {
+        .action-button {
+            padding: 10px 20px;
+            border-radius: 6px;
+            border: none;
             background-color: var(--primary-color);
-            border-color: var(--primary-color);
-        }
-
-        .btn-primary:hover {
-            background-color: #0D9668;
-        }
-
-        .btn:disabled {
-            background-color: var(--border-color);
-            cursor: not-allowed;
-            opacity: 0.6;
-        }
-
-        .toggle-container {
+            color: white;
+            cursor: pointer;
+            transition: background-color var(--transition-speed);
+            font-weight: 500;
             display: flex;
             align-items: center;
-            gap: 1rem;
-            margin-bottom: 1rem;
+            gap: 8px;
         }
 
-        .toggle-label {
-            font-size: 0.9rem;
-            color: var(--text-secondary);
+        .action-button:hover {
+            background-color: #1D4ED8;
         }
 
-        textarea {
-            width: 100%;
-            height: 200px;
-            background-color: var(--card-bg);
-            color: var(--text-color);
-            border: 1px solid var(--border-color);
-            padding: 1rem;
-            font-family: monospace;
-            font-size: 0.95rem;
-            resize: none;
-            outline: none;
-            border-radius: 4px;
-            margin-bottom: 1rem;
+        .action-button:disabled {
+            background-color: #4B5563;
+            cursor: not-allowed;
         }
 
-        .results-section {
-            background-color: var(--card-bg);
+        .options-group {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .options-group label {
+            font-size: 14px;
+            color: var(--text-dark-secondary);
+        }
+
+        select.control {
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid var(--border-dark);
+            background-color: var(--bg-dark);
+            color: var(--text-dark-primary);
+            font-size: 14px;
+        }
+
+        .progress-indicator {
+            margin-top: 15px;
+            text-align: center;
+            color: var(--text-dark-secondary);
+            font-size: 14px;
+            display: none;
+        }
+
+        .results-panel {
+            flex-grow: 1;
+            background-color: var(--surface-dark);
+            padding: 20px;
             border-radius: 8px;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            transition: opacity 0.3s ease;
+            border: 1px solid var(--border-dark);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
         }
 
         .results-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 1rem;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 0.5rem;
+            margin-bottom: 15px;
         }
 
-        .results-count {
+        .results-header h2 {
+            font-size: 18px;
+        }
+
+        .view-toggle button {
+            background: none;
+            border: 1px solid var(--border-dark);
+            color: var(--text-dark-secondary);
+            padding: 5px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-left: 5px;
+        }
+
+        .view-toggle button.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .results-table-container {
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .results-table th, .results-table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-dark);
+            white-space: nowrap;
+        }
+
+        .results-table th {
+            background-color: rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+        .results-table td {
+            vertical-align: middle;
+        }
+
+        .results-table .url-cell {
+            max-width: 300px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .results-table .actions-cell button {
+            background: none;
+            border: none;
+            color: var(--text-dark-secondary);
+            cursor: pointer;
+            margin-right: 8px;
+            font-size: 16px;
+        }
+
+        .results-table .actions-cell button:hover {
             color: var(--primary-color);
-            font-weight: bold;
         }
 
-        .results-list {
-            list-style: none;
-            margin: 0;
-            padding: 0;
+        .results-cards-container {
+            flex-grow: 1;
+            overflow-y: auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            padding-top: 10px;
         }
 
-        .result-item {
-            padding: 0.75rem;
-            border-bottom: 1px solid var(--border-color);
-            word-break: break-all;
+        .url-card {
+            background-color: var(--bg-dark);
+            border: 1px solid var(--border-dark);
+            border-radius: 8px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            font-size: 13px;
+            overflow: hidden;
         }
 
-        .result-item:last-child {
-            border-bottom: none;
-        }
-
-        .result-link {
-            color: var(--primary-color);
-            text-decoration: none;
-        }
-
-        .result-link:hover {
-            text-decoration: underline;
-        }
-
-        .loader {
-            display: none;
-            border: 3px solid var(--card-bg);
-            border-radius: 50%;
-            border-top: 3px solid var(--primary-color);
-            width: 25px;
-            height: 25px;
-            margin: 1rem auto;
-            animation: spin 1s linear infinite;
-        }
-
-        .status-message {
+        .url-card .card-icon {
+            font-size: 24px;
             text-align: center;
-            color: var(--text-secondary);
-            margin: 1rem 0;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .url-card .card-url {
+            word-break: break-all;
+            color: var(--text-dark-primary);
+            font-weight: 500;
+        }
+
+        .url-card .card-info {
+            color: var(--text-dark-secondary);
+        }
+
+        .url-card .card-actions {
+            margin-top: auto;
+            padding-top: 10px;
+            border-top: 1px solid var(--border-dark);
+            display: flex;
+            justify-content: space-around;
+        }
+
+        .url-card .card-actions button {
+            background: none;
+            border: none;
+            color: var(--text-dark-secondary);
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .url-card .card-actions button:hover {
+            color: var(--primary-color);
+        }
+
+        .filter-panel h3 {
+            font-size: 16px;
+            margin-bottom: 15px;
+            color: var(--text-dark-secondary);
+        }
+
+        .filter-group {
+            margin-bottom: 20px;
+        }
+
+        .filter-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .filter-group input[type="text"],
+        .filter-group select {
+            width: 100%;
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid var(--border-dark);
+            background-color: var(--bg-dark);
+            color: var(--text-dark-primary);
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .filter-group .checkbox-group label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 5px;
+            font-weight: normal;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
         }
 
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            to { transform: rotate(360deg); }
         }
 
-        .hidden {
-            opacity: 0;
-            display: none;
+        /* Responsive adjustments */
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 240px;
+            }
         }
 
         @media (max-width: 768px) {
-            .input-container {
+            .app-container {
                 flex-direction: column;
             }
-
-            .btn-primary {
+            .sidebar {
                 width: 100%;
+                border-right: none;
+                border-bottom: 1px solid var(--border-dark);
+                max-height: 300px; /* Limit height */
+            }
+            .main-content {
+                padding: 15px;
+            }
+            .results-table .url-cell {
+                max-width: 200px;
             }
         }
+
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 20px;
+            }
+            .input-group {
+                flex-direction: column;
+            }
+            .options-group {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .results-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            .results-table th, .results-table td {
+                padding: 8px;
+                font-size: 12px;
+            }
+            .results-table .url-cell {
+                max-width: 150px;
+            }
+            .results-cards-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
     </style>
 </head>
 <body>
-    <header>
-        <h1>URL Extractor</h1>
-        <button class="back-btn" onclick="location.href='/'" aria-label="Back to dashboard">Back to Dashboard</button>
-    </header>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="filter-panel">
+                <h3><i class="fas fa-filter"></i> Filtros</h3>
+                
+                <div class="filter-group">
+                    <label for="filter-keyword">Buscar por palabra clave</label>
+                    <input type="text" id="filter-keyword" placeholder="Ej: imagen, pdf, video">
+                </div>
 
-    <main>
-        <div class="input-section">
-            <h2>Enter URL or Source Code</h2>
-            <p style="color: var(--text-secondary); margin-bottom: 1rem;">Extract all URLs from a website or paste HTML source code</p>
+                <div class="filter-group">
+                    <label>Tipo de Recurso</label>
+                    <div class="checkbox-group">
+                        <label><input type="checkbox" value="image" checked> Imágenes</label>
+                        <label><input type="checkbox" value="video" checked> Videos</label>
+                        <label><input type="checkbox" value="audio" checked> Audio</label>
+                        <label><input type="checkbox" value="document" checked> Documentos</label>
+                        <label><input type="checkbox" value="script" checked> Scripts</label>
+                        <label><input type="checkbox" value="stylesheet" checked> Hojas de Estilo</label>
+                        <label><input type="checkbox" value="link" checked> Enlaces</label>
+                        <label><input type="checkbox" value="other" checked> Otros</label>
+                    </div>
+                </div>
 
-            <div class="toggle-container">
-                <label class="toggle-label">
-                    <input type="radio" name="input-type" value="url" checked> URL
-                </label>
-                <label class="toggle-label">
-                    <input type="radio" name="input-type" value="source"> Source Code
-                </label>
+                <div class="filter-group">
+                    <label for="filter-domain">Origen (Dominio)</label>
+                    <select id="filter-domain">
+                        <option value="all">Todos</option>
+                        <option value="same">Mismo dominio</option>
+                        <option value="external">Externos</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="filter-extension">Extensión de archivo</label>
+                    <select id="filter-extension">
+                        <option value="all">Todas</option>
+                        <optgroup label="Imágenes">
+                            <option value="jpg">JPG/JPEG</option>
+                            <option value="png">PNG</option>
+                            <option value="gif">GIF</option>
+                            <option value="webp">WebP</option>
+                            <option value="svg">SVG</option>
+                        </optgroup>
+                        <optgroup label="Videos">
+                            <option value="mp4">MP4</option>
+                            <option value="webm">WebM</option>
+                            <option value="avi">AVI</option>
+                        </optgroup>
+                        <optgroup label="Audio">
+                            <option value="mp3">MP3</option>
+                            <option value="wav">WAV</option>
+                            <option value="ogg">OGG</option>
+                        </optgroup>
+                        <optgroup label="Documentos">
+                            <option value="pdf">PDF</option>
+                            <option value="doc">DOC/DOCX</option>
+                            <option value="xls">XLS/XLSX</option>
+                            <option value="txt">TXT</option>
+                        </optgroup>
+                        <optgroup label="Otros">
+                            <option value="js">JavaScript</option>
+                            <option value="css">CSS</option>
+                            <option value="zip">ZIP/RAR</option>
+                        </optgroup>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label>Acciones masivas</label>
+                    <button class="action-button" id="downloadAllButton" style="width: 100%; margin-bottom: 10px; background-color: var(--success-color);"><i class="fas fa-download"></i> Descargar seleccionados</button>
+                    <button class="action-button" id="copyAllButton" style="width: 100%; margin-bottom: 10px; background-color: var(--info-color);"><i class="fas fa-copy"></i> Copiar URLs seleccionadas</button>
+                    <button class="action-button" id="exportJsonButton" style="width: 100%; margin-bottom: 10px; background-color: var(--warning-color);"><i class="fas fa-file-export"></i> Exportar como JSON</button>
+                </div>
+
+                <button class="action-button" id="applyFiltersButton" style="width: 100%; background-color: var(--secondary-color);"><i class="fas fa-check"></i> Aplicar Filtros</button>
+                <button class="action-button" id="clearFiltersButton" style="width: 100%; margin-top: 10px; background-color: var(--error-color);"><i class="fas fa-times"></i> Limpiar Filtros</button>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="header">
+                <h1><i class="fas fa-link"></i> Extractor Universal de URLs</h1>
+                <button class="theme-toggle" id="themeToggle"><i class="fas fa-moon"></i></button>
             </div>
 
-            <div id="url-input" class="input-container">
-                <input
-                    type="text"
-                    id="website-url"
-                    class="input-url"
-                    placeholder="Enter website URL (e.g., https://example.com)"
-                    aria-label="Website URL"
-                >
-                <button id="extract-url-btn" class="btn btn-primary" aria-label="Extract URLs from website">Extract URLs</button>
+            <div class="input-panel">
+                <div class="input-group">
+                    <input type="url" class="url-input" id="targetUrlInput" placeholder="Ingresa la URL del sitio web a analizar">
+                    <button class="action-button" id="analyzeButton">
+                        <i class="fas fa-search"></i> Analizar
+                    </button>
+                </div>
+                <div class="options-group">
+                    <label for="scanDepth">Profundidad:</label>
+                    <select id="scanDepth" class="control">
+                        <option value="0">Solo esta página</option>
+                        <option value="1">1 nivel</option>
+                        <option value="2">2 niveles</option>
+                    </select>
+                    <label><input type="checkbox" id="followLinks"> Seguir enlaces</label>
+                </div>
+                <div class="progress-indicator" id="progressIndicator">
+                    <span id="progressText">Analizando...</span>
+                    <div class="loading-spinner" style="vertical-align: middle; margin-left: 5px;"></div>
+                </div>
             </div>
 
-            <div id="source-input" class="input-container hidden">
-                <textarea
-                    id="source-code"
-                    placeholder="Paste HTML source code here..."
-                    aria-label="HTML source code"
-                ></textarea>
-                <button id="extract-source-btn" class="btn btn-primary" aria-label="Extract URLs from source code">Extract URLs</button>
+            <div class="results-panel">
+                <div class="results-header">
+                    <h2>Resultados (<span id="resultsCount">0</span>)</h2>
+                    <div class="view-toggle">
+                        <button id="tableViewButton" class="active"><i class="fas fa-list"></i> Tabla</button>
+                        <button id="cardViewButton"><i class="fas fa-th-large"></i> Tarjetas</button>
+                    </div>
+                </div>
+                <div class="results-table-container" id="resultsTableContainer">
+                    <table class="results-table" id="resultsTable">
+                        <thead>
+                            <tr>
+                                <th>Tipo</th>
+                                <th>URL</th>
+                                <th>Origen</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="resultsTableBody">
+                            <!-- Rows will be added here -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="results-cards-container" id="resultsCardsContainer" style="display: none;">
+                    <!-- Cards will be added here -->
+                </div>
             </div>
-
-            <div class="toggle-container">
-                <label class="toggle-label">
-                    <input type="checkbox" id="use-proxy" checked> Use CORS proxy (recommended for cross-origin requests)
-                </label>
-            </div>
-        </div>
-
-        <div id="loader" class="loader" role="status" aria-label="Loading, please wait..."></div>
-        <div id="status-message" class="status-message"></div>
-
-        <div id="results-container" class="results-section hidden">
-            <div class="results-header">
-                <h3>Extracted URLs</h3>
-                <span class="results-count" id="url-count">0 URLs found</span>
-            </div>
-
-            <div class="controls" style="margin-bottom: 1rem;">
-                <button id="copy-all-btn" class="btn" aria-label="Copy all extracted URLs">Copy All</button>
-                <button id="download-btn" class="btn" aria-label="Download extracted URLs as text file">Download as TXT</button>
-            </div>
-
-            <ul id="results-list" class="results-list"></ul>
-        </div>
-    </main>
+        </main>
+    </div>
 
     <script>
-        // Constantes
-        const SELECTORS = {
-            LOADER: '#loader',
-            STATUS_MESSAGE: '#status-message',
-            RESULTS_CONTAINER: '#results-container',
-            RESULTS_LIST: '#results-list',
-            URL_COUNT: '#url-count',
-            EXTRACT_URL_BTN: '#extract-url-btn',
-            EXTRACT_SOURCE_BTN: '#extract-source-btn',
-            WEBSITE_URL: '#website-url',
-            SOURCE_CODE: '#source-code',
-        };
+        const analyzeButton = document.getElementById('analyzeButton');
+        const targetUrlInput = document.getElementById('targetUrlInput');
+        const resultsTableBody = document.getElementById('resultsTableBody');
+        const resultsCardsContainer = document.getElementById('resultsCardsContainer');
+        const resultsCount = document.getElementById('resultsCount');
+        const progressIndicator = document.getElementById('progressIndicator');
+        const progressText = document.getElementById('progressText');
+        const themeToggle = document.getElementById('themeToggle');
+        const tableViewButton = document.getElementById('tableViewButton');
+        const cardViewButton = document.getElementById('cardViewButton');
+        const resultsTableContainer = document.getElementById('resultsTableContainer');
+        const scanDepthSelect = document.getElementById('scanDepth');
+        const followLinksCheckbox = document.getElementById('followLinks');
+        const applyFiltersButton = document.getElementById('applyFiltersButton');
 
-        const MESSAGES = {
-            INVALID_URL: 'Please enter a valid URL (e.g., https://example.com)',
-            INVALID_SOURCE: 'Please enter HTML source code',
-            FETCH_ERROR: 'Error fetching URL. Please check the URL or try again.',
-            CORS_ERROR: 'CORS issue detected. Try enabling the CORS proxy.',
-            NETWORK_ERROR: 'Network error. Please check your connection.',
-            COPY_SUCCESS: 'All URLs copied to clipboard',
-            NO_URLS: 'No URLs found',
-            FETCHING: 'Fetching page...',
-            EXTRACTING: 'Extracting URLs...',
-        };
+        let extractedUrls = new Set();
+        let currentView = 'table';
+        let visitedUrls = new Set(); // Para evitar bucles infinitos en el escaneo profundo
+        let pendingUrls = []; // Cola de URLs para escaneo profundo
+        let currentScanDepth = 0;
+        let isScanning = false;
+        let filterTypeCheckboxes = document.querySelectorAll('.checkbox-group input[type="checkbox"]');
+        let filterKeyword = document.getElementById('filter-keyword');
+        let filterDomain = document.getElementById('filter-domain');
+        let filteredResults = [];
 
-        // Utilidades
-        function isValidUrl(string) {
-            try {
-                new URL(string);
+        // Sistema de caché para URLs ya analizadas
+        const urlCache = {
+            data: {},
+            
+            // Guardar en localStorage
+            save() {
+                try {
+                    const serialized = JSON.stringify(this.data);
+                    localStorage.setItem('urlExtractorCache', serialized);
+                } catch (e) {
+                    console.warn('Error al guardar caché:', e);
+                }
+            },
+            
+            // Cargar desde localStorage
+            load() {
+                try {
+                    const cached = localStorage.getItem('urlExtractorCache');
+                    if (cached) {
+                        this.data = JSON.parse(cached);
+                    }
+                } catch (e) {
+                    console.warn('Error al cargar caché:', e);
+                    this.data = {};
+                }
+            },
+            
+            // Obtener datos de una URL
+            get(url) {
+                return this.data[url];
+            },
+            
+            // Guardar datos de una URL
+            set(url, htmlContent) {
+                this.data[url] = {
+                    content: htmlContent,
+                    timestamp: Date.now()
+                };
+                
+                // Guardar cada 10 entradas nuevas para no sobrecargar localStorage
+                if (Object.keys(this.data).length % 10 === 0) {
+                    this.save();
+                }
+            },
+            
+            // Comprobar si una URL está en caché y no ha expirado
+            has(url) {
+                const entry = this.data[url];
+                if (!entry) return false;
+                
+                // Expirar entradas después de 24 horas
+                const expired = Date.now() - entry.timestamp > 24 * 60 * 60 * 1000;
+                if (expired) {
+                    delete this.data[url];
+                    return false;
+                }
+                
                 return true;
-            } catch {
-                return false;
+            },
+            
+            // Limpiar caché
+            clear() {
+                this.data = {};
+                localStorage.removeItem('urlExtractorCache');
+            }
+        };
+
+        // Cargar caché al inicio
+        urlCache.load();
+
+        // --- Sistema de Proxy Rotativo ---
+        class ProxyRotator {
+            constructor() {
+                // Lista de proxies disponibles
+                this.proxies = [
+                    'https://corsproxy.io/?',
+                    'https://api.allorigins.win/raw?url=',
+                    'https://api.codetabs.com/v1/proxy?quest=',
+                    'https://cors-anywhere.herokuapp.com/',
+                    'https://crossorigin.me/'
+                ];
+                
+                this.currentIndex = 0;
+                this.failedProxies = new Set();
+                
+                // Cargar estado de proxies desde localStorage
+                this.loadState();
+            }
+            
+            // Guardar estado de proxies fallidos
+            saveState() {
+                localStorage.setItem('proxyRotatorState', JSON.stringify({
+                    failedProxies: Array.from(this.failedProxies),
+                    currentIndex: this.currentIndex
+                }));
+            }
+            
+            // Cargar estado de proxies fallidos
+            loadState() {
+                try {
+                    const state = JSON.parse(localStorage.getItem('proxyRotatorState'));
+                    if (state) {
+                        this.failedProxies = new Set(state.failedProxies);
+                        this.currentIndex = state.currentIndex;
+                    }
+                } catch (e) {
+                    console.warn('Error al cargar estado de proxies:', e);
+                }
+            }
+            
+            // Obtener el siguiente proxy disponible
+            getNextProxy() {
+                // Si todos los proxies han fallado, reiniciar
+                if (this.failedProxies.size >= this.proxies.length) {
+                    console.warn('Todos los proxies han fallado, reiniciando lista');
+                    this.failedProxies.clear();
+                }
+                
+                // Buscar el siguiente proxy que no haya fallado
+                let attempts = 0;
+                while (attempts < this.proxies.length) {
+                    const proxy = this.proxies[this.currentIndex];
+                    this.currentIndex = (this.currentIndex + 1) % this.proxies.length;
+                    
+                    if (!this.failedProxies.has(proxy)) {
+                        return proxy;
+                    }
+                    
+                    attempts++;
+                }
+                
+                // Si llegamos aquí, todos los proxies han fallado
+                throw new Error('Todos los proxies han fallado');
+            }
+            
+            // Marcar un proxy como fallido
+            markProxyAsFailed(proxy) {
+                this.failedProxies.add(proxy);
+                this.saveState();
+                console.warn(`Proxy marcado como fallido: ${proxy}`);
+            }
+            
+            // Realizar una petición a través de un proxy con reintentos
+            async fetchWithProxy(url, options = {}, maxRetries = 3) {
+                let lastError;
+                
+                for (let attempt = 0; attempt < maxRetries; attempt++) {
+                    try {
+                        const proxy = this.getNextProxy();
+                        const proxyUrl = `${proxy}${encodeURIComponent(url)}`;
+                        
+                        console.log(`Intento ${attempt + 1} con proxy: ${proxy}`);
+                        progressText.textContent = `Usando proxy: ${proxy.split('//')[1].split('/')[0]}`;
+                        
+                        const response = await fetch(proxyUrl, options);
+                        if (!response.ok) {
+                            throw new Error(`Error HTTP: ${response.status}`);
+                        }
+                        
+                        return await response.text();
+                    } catch (error) {
+                        lastError = error;
+                        console.error(`Intento ${attempt + 1} fallido:`, error);
+                        
+                        // Marcar el proxy actual como fallido
+                        const failedProxyIndex = (this.currentIndex - 1 + this.proxies.length) % this.proxies.length;
+                        this.markProxyAsFailed(this.proxies[failedProxyIndex]);
+                        
+                        // Esperar un poco antes del siguiente intento
+                        await new Promise(resolve => setTimeout(resolve, 500));
+                    }
+                }
+                
+                throw new Error(`Todos los intentos fallaron: ${lastError.message}`);
             }
         }
 
-        // UI Functions
-        function showLoader(message = '') {
-            document.querySelector(SELECTORS.LOADER).style.display = 'block';
-            document.querySelector(SELECTORS.STATUS_MESSAGE).textContent = message;
+        // Crear instancia del rotador de proxies
+        const proxyRotator = new ProxyRotator();
+
+        // --- Theme Toggle --- 
+        themeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('light-mode');
+            const isLight = document.body.classList.contains('light-mode');
+            themeToggle.innerHTML = `<i class="fas ${isLight ? 'fa-moon' : 'fa-sun'}"></i>`;
+            localStorage.setItem('theme', isLight ? 'light' : 'dark');
+        });
+
+        // Load theme preference
+        if (localStorage.getItem('theme') === 'light') {
+            document.body.classList.add('light-mode');
+            themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
         }
 
-        function hideLoader() {
-            document.querySelector(SELECTORS.LOADER).style.display = 'none';
-            document.querySelector(SELECTORS.STATUS_MESSAGE).textContent = '';
-        }
+        // --- View Toggle --- 
+        tableViewButton.addEventListener('click', () => switchView('table'));
+        cardViewButton.addEventListener('click', () => switchView('card'));
 
-        function displayResults(urls) {
-            const resultsContainer = document.querySelector(SELECTORS.RESULTS_CONTAINER);
-            const resultsList = document.querySelector(SELECTORS.RESULTS_LIST);
-            const urlCount = document.querySelector(SELECTORS.URL_COUNT);
-
-            urlCount.textContent = `${urls.length} URLs found`;
-            resultsList.innerHTML = '';
-
-            if (urls.length > 0) {
-                urls.forEach(url => {
-                    const li = document.createElement('li');
-                    li.className = 'result-item';
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.target = '_blank';
-                    a.className = 'result-link';
-                    a.textContent = url;
-                    li.appendChild(a);
-                    resultsList.appendChild(li);
-                });
+        function switchView(view) {
+            currentView = view;
+            if (view === 'table') {
+                resultsTableContainer.style.display = 'block';
+                resultsCardsContainer.style.display = 'none';
+                tableViewButton.classList.add('active');
+                cardViewButton.classList.remove('active');
             } else {
-                const li = document.createElement('li');
-                li.className = 'result-item';
-                li.textContent = MESSAGES.NO_URLS;
-                resultsList.appendChild(li);
+                resultsTableContainer.style.display = 'none';
+                resultsCardsContainer.style.display = 'grid'; // Use grid for cards
+                tableViewButton.classList.remove('active');
+                cardViewButton.classList.add('active');
             }
-
-            resultsContainer.classList.remove('hidden');
+            // Re-render might be needed if data is already loaded
+            applyFilters();
         }
 
-        // Extractor Functions
-        function extractUrls(html, baseUrl = '') {
-            const urls = new Set();
-
-            // Regex para URLs en href y src
-            const hrefRegex = /href=["'](.*?)["']/gi;
-            const srcRegex = /src=["'](.*?)["']/gi;
-            const urlRegex = /https?:\/\/[^\s"'<>()]+/g;
-
-            // Extraer URLs de href
-            let match;
-            while ((match = hrefRegex.exec(html)) !== null) {
-                if (match[1] && !match[1].startsWith('#') && !match[1].startsWith('javascript:')) {
-                    let url = match[1];
-                    if (baseUrl && !url.startsWith('http://') && !url.startsWith('https://')) {
-                        if (url.startsWith('/')) {
-                            const domain = baseUrl.split('/').slice(0, 3).join('/');
-                            url = domain + url;
-                        } else {
-                            url = baseUrl.replace(/\/[^\/]*$/, '/') + url;
-                        }
-                    }
-                    urls.add(url);
-                }
-            }
-
-            // Extraer URLs de src
-            while ((match = srcRegex.exec(html)) !== null) {
-                if (match[1] && !match[1].startsWith('data:')) {
-                    let url = match[1];
-                    if (baseUrl && !url.startsWith('http://') && !url.startsWith('https://')) {
-                        if (url.startsWith('/')) {
-                            const domain = baseUrl.split('/').slice(0, 3).join('/');
-                            url = domain + url;
-                        } else {
-                            url = baseUrl.replace(/\/[^\/]*$/, '/') + url;
-                        }
-                    }
-                    urls.add(url);
-                }
-            }
-
-            // Extraer URLs planas
-            while ((match = urlRegex.exec(html)) !== null) {
-                urls.add(match[0]);
-            }
-
-            return [...urls];
-        }
-
-        async function extractUrlsFromWebsite(url) {
-            const extractBtn = document.querySelector(SELECTORS.EXTRACT_URL_BTN);
-            extractBtn.disabled = true;
-
-            if (!isValidUrl(url)) {
-                alert(MESSAGES.INVALID_URL);
-                extractBtn.disabled = false;
+        // --- URL Extraction Logic --- 
+        analyzeButton.addEventListener('click', async () => {
+            const targetUrl = targetUrlInput.value.trim();
+            if (!targetUrl) {
+                alert('Por favor, ingresa una URL válida.');
                 return;
             }
 
-            showLoader(MESSAGES.FETCHING);
-            document.querySelector(SELECTORS.RESULTS_CONTAINER).classList.add('hidden');
-            document.querySelector(SELECTORS.RESULTS_LIST).innerHTML = '';
-
+            // Basic validation
             try {
-                const useProxy = document.getElementById('use-proxy').checked;
-                const fetchUrl = useProxy
-                    ? `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`
-                    : url;
-
-                const response = await fetch(fetchUrl);
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-
-                showLoader(MESSAGES.EXTRACTING);
-                const html = await response.text();
-                const urls = extractUrls(html, url);
-                displayResults(urls);
-            } catch (error) {
-                console.error('Error fetching URL:', error);
-                let message = MESSAGES.FETCH_ERROR;
-                if (error.message.includes('network')) {
-                    message = MESSAGES.NETWORK_ERROR;
-                } else if (error.message.includes('CORS')) {
-                    message = MESSAGES.CORS_ERROR;
-                }
-                alert(message);
-            } finally {
-                hideLoader();
-                extractBtn.disabled = false;
-            }
-        }
-
-        function extractUrlsFromSource(sourceCode) {
-            const extractBtn = document.querySelector(SELECTORS.EXTRACT_SOURCE_BTN);
-            extractBtn.disabled = true;
-
-            if (!sourceCode) {
-                alert(MESSAGES.INVALID_SOURCE);
-                extractBtn.disabled = false;
+                new URL(targetUrl);
+            } catch (e) {
+                alert('La URL ingresada no es válida.');
                 return;
             }
 
-            showLoader(MESSAGES.EXTRACTING);
-            document.querySelector(SELECTORS.RESULTS_CONTAINER).classList.add('hidden');
-            document.querySelector(SELECTORS.RESULTS_LIST).innerHTML = '';
-
+            // Reiniciar estado
+            extractedUrls.clear();
+            visitedUrls.clear();
+            pendingUrls = [targetUrl];
+            resultsTableBody.innerHTML = '';
+            resultsCardsContainer.innerHTML = '';
+            resultsCount.textContent = '0';
+            progressIndicator.style.display = 'block';
+            progressText.textContent = 'Iniciando análisis...';
+            analyzeButton.disabled = true;
+            analyzeButton.innerHTML = '<div class="loading-spinner"></div> Analizando...';
+            isScanning = true;
+            
+            // Obtener configuración de profundidad
+            currentScanDepth = parseInt(scanDepthSelect.value);
+            const shouldFollowLinks = followLinksCheckbox.checked;
+            
             try {
-                const urls = extractUrls(sourceCode);
-                displayResults(urls);
+                // Iniciar el proceso de escaneo
+                await processUrlQueue(shouldFollowLinks);
+                
+                progressText.textContent = `Análisis completado. ${extractedUrls.size} URLs encontradas.`;
+                applyFilters();
+                
             } catch (error) {
-                console.error('Error processing source:', error);
-                alert(MESSAGES.FETCH_ERROR);
+                console.error('Error durante el análisis:', error);
+                progressText.textContent = `Error: ${error.message}`;
+                alert(`Error durante el análisis: ${error.message}`);
             } finally {
-                hideLoader();
-                extractBtn.disabled = false;
+                // Hide progress indicator after a short delay
+                setTimeout(() => { progressIndicator.style.display = 'none'; }, 2000);
+                analyzeButton.disabled = false;
+                analyzeButton.innerHTML = '<i class="fas fa-search"></i> Analizar';
+                isScanning = false;
+                
+                // Guardar caché final
+                urlCache.save();
+            }
+        });
+        
+        // Procesar la cola de URLs para escaneo profundo
+        async function processUrlQueue(shouldFollowLinks) {
+            let currentDepth = 0;
+            let currentLevelUrls = [...pendingUrls];
+            pendingUrls = [];
+            
+            while (currentDepth <= currentScanDepth && currentLevelUrls.length > 0 && isScanning) {
+                progressText.textContent = `Escaneando nivel ${currentDepth}... (${currentLevelUrls.length} URLs)`;
+                
+                // Procesar todas las URLs del nivel actual
+                for (const url of currentLevelUrls) {
+                    if (visitedUrls.has(url) || !isScanning) continue;
+                    
+                    visitedUrls.add(url);
+                    progressText.textContent = `Analizando: ${getShortUrl(url, 40)}`;
+                    
+                    try {
+                        let htmlContent;
+                        
+                        // Verificar si la URL está en caché
+                        if (urlCache.has(url)) {
+                            console.log(`Usando caché para ${url}`);
+                            htmlContent = urlCache.get(url).content;
+                        } else {
+                            // Usar el proxy rotativo para obtener el contenido
+                            htmlContent = await proxyRotator.fetchWithProxy(url);
+                            
+                            // Guardar en caché
+                            urlCache.set(url, htmlContent);
+                        }
+                        
+                        // Extraer URLs del contenido
+                        const newUrls = await extractUrlsFromDOM(htmlContent, url);
+                        
+                        // Si debemos seguir enlaces y no estamos en el nivel máximo,
+                        // añadir URLs encontradas a la cola para el siguiente nivel
+                        if (shouldFollowLinks && currentDepth < currentScanDepth) {
+                            newUrls.forEach(newUrl => {
+                                if (!visitedUrls.has(newUrl) && !pendingUrls.includes(newUrl)) {
+                                    pendingUrls.push(newUrl);
+                                }
+                            });
+                        }
+                        
+                        // Actualizar progreso
+                        resultsCount.textContent = extractedUrls.size;
+                        
+                    } catch (error) {
+                        console.error(`Error al procesar ${url}:`, error);
+                    }
+                }
+                
+                // Pasar al siguiente nivel
+                currentDepth++;
+                currentLevelUrls = [...pendingUrls];
+                pendingUrls = [];
             }
         }
 
-        // Event Listeners
-        document.querySelectorAll('input[name="input-type"]').forEach(radio => {
-            radio.addEventListener('change', (e) => {
-                const urlInput = document.getElementById('url-input');
-                const sourceInput = document.getElementById('source-input');
-                urlInput.classList.toggle('hidden', e.target.value !== 'url');
-                sourceInput.classList.toggle('hidden', e.target.value !== 'source');
+        async function extractUrlsFromDOM(htmlContent, baseUrl) {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(htmlContent, 'text/html');
+            const base = new URL(baseUrl);
+            const foundUrls = [];
+
+            const selectors = {
+                link: 'a[href]',
+                image: 'img[src], source[srcset]', // Include srcset for responsive images
+                video: 'video[src], video source[src]',
+                audio: 'audio[src], audio source[src]',
+                script: 'script[src]',
+                stylesheet: 'link[rel="stylesheet"][href]',
+                iframe: 'iframe[src]',
+                document: 'a[href$=".pdf"], a[href$=".doc"], a[href$=".docx"], a[href$=".xls"], a[href$=".xlsx"], a[href$=".ppt"], a[href$=".pptx"], a[href$=".txt"], a[href$=".csv"]'
+            };
+
+            for (const type in selectors) {
+                doc.querySelectorAll(selectors[type]).forEach(el => {
+                    let urlAttr = 'href'; // Default attribute
+                    if (['image', 'video', 'audio', 'script', 'iframe'].includes(type)) {
+                        urlAttr = 'src';
+                    }
+                    if (type === 'image' && el.hasAttribute('srcset')) {
+                        // Handle srcset (multiple URLs)
+                        const srcset = el.getAttribute('srcset');
+                        srcset.split(',').forEach(part => {
+                            const url = part.trim().split(' ')[0];
+                            if (url) {
+                                const absoluteUrl = addUrl(url, type, base);
+                                if (absoluteUrl && type === 'link') foundUrls.push(absoluteUrl);
+                            }
+                        });
+                    } else {
+                        const relativeUrl = el.getAttribute(urlAttr);
+                        if (relativeUrl) {
+                            const absoluteUrl = addUrl(relativeUrl, type, base);
+                            if (absoluteUrl && type === 'link') foundUrls.push(absoluteUrl);
+                        }
+                    }
+                });
+            }
+            
+            // Extract URLs from inline styles
+            doc.querySelectorAll('[style]').forEach(el => {
+                const style = el.getAttribute('style');
+                if (!style) return;
+                
+                const matches = style.match(/url\(['"]?(.*?)['"]?\)/g);
+                if (matches) {
+                    matches.forEach(match => {
+                        const url = match.replace(/url\(['"]?/, '').replace(/['"]?\)/, '');
+                        if (url) addUrl(url, 'stylesheet', base);
+                    });
+                }
+            });
+            
+            // Extract URLs from CSS files (for stylesheets we've found)
+            // This would require additional fetches, which we'll skip for now
+            
+            // Extract URLs from JavaScript files (for scripts we've found)
+            // This is complex and potentially unsafe, so we'll skip for now
+            
+            // Extract meta tags with URLs
+            doc.querySelectorAll('meta[content]').forEach(el => {
+                const content = el.getAttribute('content');
+                if (content && content.match(/https?:\/\//)) {
+                    addUrl(content, 'meta', base);
+                }
+            });
+            
+            // Extract URLs from data attributes
+            doc.querySelectorAll('[data-src], [data-href], [data-url]').forEach(el => {
+                ['data-src', 'data-href', 'data-url'].forEach(attr => {
+                    if (el.hasAttribute(attr)) {
+                        const url = el.getAttribute(attr);
+                        if (url) addUrl(url, 'data-attribute', base);
+                    }
+                });
+            });
+            
+            // Extract URLs from embedded objects
+            doc.querySelectorAll('object[data], embed[src], applet[code]').forEach(el => {
+                let attr = el.tagName.toLowerCase() === 'object' ? 'data' : 
+                           el.tagName.toLowerCase() === 'applet' ? 'code' : 'src';
+                const url = el.getAttribute(attr);
+                if (url) addUrl(url, 'embedded', base);
+            });
+            
+            // Extract URLs from forms
+            doc.querySelectorAll('form[action]').forEach(el => {
+                const url = el.getAttribute('action');
+                if (url) addUrl(url, 'form', base);
+            });
+            
+            return foundUrls;
+        }
+
+        function addUrl(relativeUrl, type, base) {
+            try {
+                // Resolve relative URLs against the base URL
+                const absoluteUrl = new URL(relativeUrl, base.href).href;
+                
+                // Avoid adding data URIs, javascript: links, or mailto: links
+                if (!absoluteUrl.startsWith('data:') && 
+                    !absoluteUrl.startsWith('javascript:') && 
+                    !absoluteUrl.startsWith('mailto:') &&
+                    !absoluteUrl.startsWith('tel:') &&
+                    !absoluteUrl.startsWith('sms:')) {
+                    
+                    // Determinar el tipo de archivo basado en la extensión
+                    let detectedType = type;
+                    const extension = absoluteUrl.split('.').pop().toLowerCase().split('?')[0];
+                    
+                    // Refinar el tipo basado en la extensión
+                    if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'avif', 'bmp', 'ico'].includes(extension)) {
+                        detectedType = 'image';
+                    } else if (['mp4', 'webm', 'avi', 'mov', 'wmv', 'flv', 'mkv', 'm4v'].includes(extension)) {
+                        detectedType = 'video';
+                    } else if (['mp3', 'wav', 'ogg', 'flac', 'aac', 'm4a'].includes(extension)) {
+                        detectedType = 'audio';
+                    } else if (['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt', 'csv', 'rtf'].includes(extension)) {
+                        detectedType = 'document';
+                    } else if (['js', 'mjs'].includes(extension)) {
+                        detectedType = 'script';
+                    } else if (['css', 'scss', 'less'].includes(extension)) {
+                        detectedType = 'stylesheet';
+                    } else if (['zip', 'rar', '7z', 'tar', 'gz', 'bz2'].includes(extension)) {
+                        detectedType = 'archive';
+                    } else if (['html', 'htm', 'php', 'asp', 'aspx', 'jsp'].includes(extension)) {
+                        detectedType = 'link';
+                    }
+                    
+                    // Añadir a la colección de URLs extraídas
+                    extractedUrls.add(JSON.stringify({ 
+                        url: absoluteUrl, 
+                        type: detectedType, 
+                        origin: new URL(absoluteUrl).hostname,
+                        extension: extension || 'none'
+                    }));
+                    
+                    return absoluteUrl;
+                }
+            } catch (e) {
+                // Ignore invalid URLs
+                console.warn(`Ignorando URL inválida: ${relativeUrl}`, e);
+            }
+            return null;
+        }
+
+        // --- Filtrado de resultados ---
+        applyFiltersButton.addEventListener('click', applyFilters);
+        
+        function applyFilters() {
+            // Obtener valores de filtros
+            const keyword = filterKeyword.value.toLowerCase();
+            const domainFilter = filterDomain.value;
+            const extensionFilter = document.getElementById('filter-extension').value;
+            const selectedTypes = Array.from(filterTypeCheckboxes)
+                .filter(cb => cb.checked)
+                .map(cb => cb.value);
+            
+            // Convertir Set a Array y filtrar
+            filteredResults = Array.from(extractedUrls)
+                .map(item => JSON.parse(item))
+                .filter(item => {
+                    // Filtrar por tipo
+                    if (!selectedTypes.includes(item.type)) return false;
+                    
+                    // Filtrar por palabra clave
+                    if (keyword && !item.url.toLowerCase().includes(keyword)) return false;
+                    
+                    // Filtrar por dominio
+                    if (domainFilter !== 'all') {
+                        const baseUrl = new URL(targetUrlInput.value.trim());
+                        const itemUrl = new URL(item.url);
+                        
+                        if (domainFilter === 'same' && baseUrl.hostname !== itemUrl.hostname) return false;
+                        if (domainFilter === 'external' && baseUrl.hostname === itemUrl.hostname) return false;
+                    }
+                    
+                    // Filtrar por extensión
+                    if (extensionFilter !== 'all') {
+                        const extension = item.extension.toLowerCase();
+                        if (extensionFilter === 'jpg' && !['jpg', 'jpeg'].includes(extension)) return false;
+                        else if (extensionFilter === 'doc' && !['doc', 'docx'].includes(extension)) return false;
+                        else if (extensionFilter === 'xls' && !['xls', 'xlsx'].includes(extension)) return false;
+                        else if (extensionFilter === 'zip' && !['zip', 'rar', '7z', 'tar', 'gz'].includes(extension)) return false;
+                        else if (extension !== extensionFilter) return false;
+                    }
+                    
+                    return true;
+                });
+            
+            // Actualizar la visualización
+            renderResults(filteredResults);
+            
+            // Actualizar contador de resultados filtrados
+            const totalCount = extractedUrls.size;
+            const filteredCount = filteredResults.length;
+            resultsCount.textContent = `${filteredCount} de ${totalCount}`;
+        }
+        
+        // Limpiar filtros
+        document.getElementById('clearFiltersButton').addEventListener('click', () => {
+            filterKeyword.value = '';
+            filterDomain.value = 'all';
+            document.getElementById('filter-extension').value = 'all';
+            filterTypeCheckboxes.forEach(cb => cb.checked = true);
+            applyFilters();
+        });
+        
+        // Acciones masivas
+        document.getElementById('downloadAllButton').addEventListener('click', async () => {
+            if (filteredResults.length === 0) {
+                alert('No hay URLs seleccionadas para descargar');
+                return;
+            }
+            
+            if (filteredResults.length > 10) {
+                const confirm = window.confirm(`¿Estás seguro de que deseas descargar ${filteredResults.length} archivos? Esto puede tardar un tiempo y consumir recursos.`);
+                if (!confirm) return;
+            }
+            
+            progressIndicator.style.display = 'block';
+            progressText.textContent = `Preparando descarga de ${filteredResults.length} archivos...`;
+            
+            let successCount = 0;
+            let failCount = 0;
+            
+            for (let i = 0; i < filteredResults.length; i++) {
+                const item = filteredResults[i];
+                progressText.textContent = `Descargando ${i+1}/${filteredResults.length}: ${getShortUrl(item.url, 30)}`;
+                
+                try {
+                    await downloadResource(item.url, item.type);
+                    successCount++;
+                } catch (error) {
+                    console.error(`Error al descargar ${item.url}:`, error);
+                    failCount++;
+                }
+                
+                // Pequeña pausa para no sobrecargar
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+            
+            progressText.textContent = `Descarga completada: ${successCount} éxitos, ${failCount} fallos`;
+            setTimeout(() => { progressIndicator.style.display = 'none'; }, 3000);
+        });
+        
+        document.getElementById('copyAllButton').addEventListener('click', () => {
+            if (filteredResults.length === 0) {
+                alert('No hay URLs seleccionadas para copiar');
+                return;
+            }
+            
+            const urls = filteredResults.map(item => item.url).join('\\n');
+            navigator.clipboard.writeText(urls).then(() => {
+                const toast = document.createElement('div');
+                toast.textContent = `${filteredResults.length} URLs copiadas al portapapeles`;
+                toast.style.position = 'fixed';
+                toast.style.bottom = '20px';
+                toast.style.left = '50%';
+                toast.style.transform = 'translateX(-50%)';
+                toast.style.backgroundColor = 'var(--success-color)';
+                toast.style.color = 'white';
+                toast.style.padding = '10px 20px';
+                toast.style.borderRadius = '4px';
+                toast.style.zIndex = '1000';
+                document.body.appendChild(toast);
+                
+                setTimeout(() => {
+                    toast.style.opacity = '0';
+                    toast.style.transition = 'opacity 0.5s';
+                    setTimeout(() => document.body.removeChild(toast), 500);
+                }, 2000);
+            }).catch(err => {
+                console.error('Error al copiar URLs:', err);
+                alert('Error al copiar URLs: ' + err.message);
             });
         });
-
-        document.querySelector(SELECTORS.EXTRACT_URL_BTN).addEventListener('click', () => {
-            let url = document.querySelector(SELECTORS.WEBSITE_URL).value.trim();
-            if (!url) {
-                alert(MESSAGES.INVALID_URL);
+        
+        document.getElementById('exportJsonButton').addEventListener('click', () => {
+            if (filteredResults.length === 0) {
+                alert('No hay URLs para exportar');
                 return;
             }
-            if (!url.startsWith('http://') && !url.startsWith('https://')) {
-                url = `https://${url}`;
-            }
-            extractUrlsFromWebsite(url);
-        });
-
-        document.querySelector(SELECTORS.WEBSITE_URL).addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                document.querySelector(SELECTORS.EXTRACT_URL_BTN).click();
-            }
-        });
-
-        document.querySelector(SELECTORS.EXTRACT_SOURCE_BTN).addEventListener('click', () => {
-            const sourceCode = document.querySelector(SELECTORS.SOURCE_CODE).value.trim();
-            extractUrlsFromSource(sourceCode);
-        });
-
-        document.getElementById('copy-all-btn').addEventListener('click', async () => {
-            const resultItems = document.querySelectorAll('.result-link');
-            if (resultItems.length === 0) return;
-
-            const urls = Array.from(resultItems).map(item => item.textContent).join('\n');
-            try {
-                await navigator.clipboard.writeText(urls);
-                alert(MESSAGES.COPY_SUCCESS);
-                document.getElementById('copy-all-btn').focus();
-            } catch (err) {
-                console.error('Failed to copy:', err);
-            }
-        });
-
-        document.getElementById('download-btn').addEventListener('click', () => {
-            const resultItems = document.querySelectorAll('.result-link');
-            if (resultItems.length === 0) return;
-
-            const urls = Array.from(resultItems).map(item => item.textContent).join('\n');
-            const blob = new Blob([urls], { type: 'text/plain' });
+            
+            // Crear objeto para exportar
+            const exportData = {
+                source: targetUrlInput.value,
+                extractionDate: new Date().toISOString(),
+                totalUrls: extractedUrls.size,
+                filteredUrls: filteredResults.length,
+                urls: filteredResults
+            };
+            
+            // Convertir a JSON
+            const jsonString = JSON.stringify(exportData, null, 2);
+            const blob = new Blob([jsonString], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
-
+            
+            // Crear enlace de descarga
             const a = document.createElement('a');
             a.href = url;
-            a.download = 'extracted_urls.txt';
+            a.download = `url-export-${new Date().toISOString().slice(0,10)}.json`;
+            a.style.display = 'none';
+            document.body.appendChild(a);
             a.click();
-
-            URL.revokeObjectURL(url);
-            document.getElementById('download-btn').focus();
+            
+            // Limpiar
+            setTimeout(() => {
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }, 100);
         });
+
+        function renderResults(urlsData) {
+            resultsTableBody.innerHTML = '';
+            resultsCardsContainer.innerHTML = '';
+            resultsCount.textContent = urlsData.length;
+
+            urlsData.forEach(urlData => {
+                const url = urlData.url;
+                const type = urlData.type;
+                const origin = urlData.origin;
+                const icon = getIconForType(type);
+                const extension = urlData.extension;
+
+                // Table Row
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><i class="${icon}" title="${type}"></i></td>
+                    <td class="url-cell" title="${url}">${url}</td>
+                    <td>${origin}</td>
+                    <td class="actions-cell">
+                        <button title="Copiar URL" onclick="copyToClipboard('${url}')"><i class="fas fa-copy"></i></button>
+                        <button title="Abrir en nueva pestaña" onclick="window.open('${url}', '_blank')"><i class="fas fa-external-link-alt"></i></button>
+                        <button title="Descargar" onclick="downloadResource('${url}', '${type}')"><i class="fas fa-download"></i></button> 
+                    </td>
+                `;
+                resultsTableBody.appendChild(tr);
+
+                // Card View
+                const card = document.createElement('div');
+                card.className = 'url-card';
+                card.innerHTML = `
+                    <div class="card-icon"><i class="${icon}"></i></div>
+                    <div class="card-url" title="${url}">${getShortUrl(url)}</div>
+                    <div class="card-info">Tipo: ${type}</div>
+                    <div class="card-info">Origen: ${origin}</div>
+                    <div class="card-actions">
+                        <button title="Copiar URL" onclick="copyToClipboard('${url}')"><i class="fas fa-copy"></i></button>
+                        <button title="Abrir en nueva pestaña" onclick="window.open('${url}', '_blank')"><i class="fas fa-external-link-alt"></i></button>
+                        <button title="Descargar" onclick="downloadResource('${url}', '${type}')"><i class="fas fa-download"></i></button>
+                    </div>
+                `;
+                resultsCardsContainer.appendChild(card);
+            });
+        }
+
+        function getIconForType(type) {
+            switch (type) {
+                case 'link': return 'fas fa-link';
+                case 'image': return 'fas fa-image';
+                case 'video': return 'fas fa-video';
+                case 'audio': return 'fas fa-volume-up';
+                case 'script': return 'fas fa-code';
+                case 'stylesheet': return 'fas fa-css3-alt';
+                case 'iframe': return 'fas fa-window-maximize';
+                case 'document': return 'fas fa-file-alt';
+                case 'archive': return 'fas fa-file-archive';
+                case 'embedded': return 'fas fa-puzzle-piece';
+                case 'form': return 'fas fa-paper-plane';
+                case 'meta': return 'fas fa-tag';
+                case 'data-attribute': return 'fas fa-database';
+                default: return 'fas fa-question-circle';
+            }
+        }
+
+        function getShortUrl(url, maxLength = 50) {
+            if (url.length <= maxLength) return url;
+            try {
+                const urlObj = new URL(url);
+                const path = urlObj.pathname.length > 20 ? '...' + urlObj.pathname.slice(-17) : urlObj.pathname;
+                const search = urlObj.search.length > 10 ? '...' + urlObj.search.slice(-7) : urlObj.search;
+                return `${urlObj.hostname}${path}${search}`;
+            } catch {
+                return url.slice(0, maxLength - 3) + '...';
+            }
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                // Mostrar mensaje de éxito
+                const toast = document.createElement('div');
+                toast.textContent = 'URL copiada al portapapeles';
+                toast.style.position = 'fixed';
+                toast.style.bottom = '20px';
+                toast.style.left = '50%';
+                toast.style.transform = 'translateX(-50%)';
+                toast.style.backgroundColor = 'var(--success-color)';
+                toast.style.color = 'white';
+                toast.style.padding = '10px 20px';
+                toast.style.borderRadius = '4px';
+                toast.style.zIndex = '1000';
+                document.body.appendChild(toast);
+                
+                setTimeout(() => {
+                    toast.style.opacity = '0';
+                    toast.style.transition = 'opacity 0.5s';
+                    setTimeout(() => document.body.removeChild(toast), 500);
+                }, 2000);
+            }).catch(err => {
+                console.error('Error al copiar URL:', err);
+                alert('Error al copiar URL: ' + err.message);
+            });
+        }
+
+        // Función para descargar recursos usando el proxy
+        async function downloadResource(url, type) {
+            try {
+                // Mostrar indicador de progreso
+                progressIndicator.style.display = 'block';
+                progressText.textContent = 'Preparando descarga...';
+                
+                // Obtener nombre de archivo de la URL
+                let filename = url.split('/').pop().split('?')[0];
+                if (!filename) filename = 'download';
+                
+                // Usar el proxy rotativo para obtener el recurso
+                progressText.textContent = 'Descargando a través de proxy...';
+                
+                // Crear un enlace temporal para la descarga
+                const a = document.createElement('a');
+                
+                // Para imágenes, videos y audio, podemos usar el proxy directamente en el src
+                if (['image', 'video', 'audio', 'document'].includes(type)) {
+                    const proxy = proxyRotator.getNextProxy();
+                    a.href = `${proxy}${encodeURIComponent(url)}`;
+                } else {
+                    // Para otros tipos, necesitamos obtener el contenido primero
+                    const content = await proxyRotator.fetchWithProxy(url);
+                    const blob = new Blob([content], { type: 'application/octet-stream' });
+                    a.href = URL.createObjectURL(blob);
+                }
+                
+                a.download = filename;
+                a.style.display = 'none';
+                document.body.appendChild(a);
+                a.click();
+                
+                // Limpiar
+                setTimeout(() => {
+                    document.body.removeChild(a);
+                    if (a.href.startsWith('blob:')) URL.revokeObjectURL(a.href);
+                    progressIndicator.style.display = 'none';
+                }, 1000);
+                
+            } catch (error) {
+                console.error('Error al descargar recurso:', error);
+                alert(`Error al descargar: ${error.message}`);
+                progressIndicator.style.display = 'none';
+            }
+        }
+
+        // Initial setup
+        switchView(currentView);
+
+        // Exponer funciones necesarias globalmente
+        window.copyToClipboard = copyToClipboard;
+        window.downloadResource = downloadResource;
     </script>
 </body>
 </html>
